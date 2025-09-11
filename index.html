@@ -1,0 +1,191 @@
+<!-- Chosen Palette: Warm Neutrals with Subtle Accents (Light Gray, Slate, Teal) -->
+<!-- Application Structure Plan: The application is designed as a sequential, interactive checklist. This structure is chosen for its clarity, and user-friendly, which is ideal for guiding a customer through a technical process during a call. The flow moves from top to bottom: a header with key actions, a dynamic progress tracker for instant status feedback, a series of self-contained step cards for the core content, and a final call-to-action to download the completed checklist. This design avoids unnecessary navigation, keeping all information on a single page for maximum focus and ease of use. The step-based approach helps a user and a customer move through the integration methodically. -->
+<!-- Visualization & Content Choices: A simple dynamic progress bar (HTML/CSS with JS) visually represents the completion status. Checkboxes are used as the primary interaction for marking steps, providing clear feedback. Text blocks offer detailed instructions and are the core of the application's content. A download button, powered by JavaScript, leverages the browser's native print-to-PDF functionality, which is the most reliable method for this single-file application. This method ensures that the final document is a direct, clean representation of the completed checklist. The use of unicode checkmark icons and Tailwind classes for styling eliminates the need for external images or complex libraries. -->
+<!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Druva to Arctic Wolf Webhook Integration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .progress-bar-container { width: 100%; background-color: #e5e7eb; border-radius: 9999px; overflow: hidden; }
+        .progress-bar { height: 24px; background-color: #2dd4bf; transition: width 0.5s ease-in-out; }
+        .step-card { background-color: #f9fafb; border-radius: 0.5rem; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        .step-completed .step-title { text-decoration: line-through; color: #6b7280; }
+        @media print {
+            body { background-color: #fff; color: #000; }
+            .no-print { display: none !important; }
+            .step-card { box-shadow: none; border: 1px solid #e5e7eb; page-break-inside: avoid; }
+            .progress-bar { background-color: #2dd4bf !important; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-slate-800 p-4 sm:p-8">
+
+    <div id="app-container" class="max-w-4xl mx-auto space-y-8">
+
+        <!-- Header and Progress Dashboard -->
+        <header class="no-print bg-white p-6 rounded-lg shadow-md flex flex-col sm:flex-row items-center justify-between">
+            <div class="text-center sm:text-left mb-4 sm:mb-0">
+                <h1 class="text-3xl sm:text-4xl font-bold text-slate-900">Druva to Arctic Wolf Integration</h1>
+                <p class="text-slate-600 mt-1 text-lg">Webhooks Checklist</p>
+            </div>
+            <div class="w-full sm:w-1/2">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium text-slate-700">Progress: <span id="progress-text">0%</span></span>
+                    <span class="text-sm font-medium text-slate-700"><span id="completed-count">0</span> of <span id="total-steps"></span> steps</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div id="progress-bar" class="progress-bar" style="width: 0%;"></div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dynamic Step Cards -->
+        <main id="steps-container" class="space-y-6">
+            <!-- Step cards will be generated here by JavaScript -->
+        </main>
+
+        <!-- Completion Message and Download Button -->
+        <div id="completion-section" class="no-print bg-white p-6 rounded-lg shadow-md text-center hidden">
+            <h2 class="text-2xl font-bold text-teal-600 mb-2">Integration Complete!</h2>
+            <p class="text-slate-700">All steps have been successfully marked. You can now download the completed checklist for your records or to share with your customer.</p>
+            <button id="download-btn-bottom" class="mt-4 px-6 py-3 bg-teal-600 text-white text-lg font-semibold rounded-full shadow-lg hover:bg-teal-700 transition-colors">Download Checklist as PDF</button>
+        </div>
+
+    </div>
+
+    <script>
+        const STEPS = [
+            {
+                title: "Step 1: Set Up a Log Relay Endpoint for Arctic Wolf",
+                description: "Arctic Wolf typically ingests logs via a syslog or a custom HTTPS endpoint. You will need to contact Arctic Wolf support to get your specific log ingestion endpoint URL and confirm the required authentication method (e.g., API key or OAuth). It's also important to confirm the log format they expect (e.g., JSON, CEF, LEEF).",
+                notes: "Make sure to copy the full Endpoint URL and any authentication tokens to a secure location, as you'll need them in a later step."
+            },
+            {
+                title: "Example of an Endpoint URL",
+                description: "For a non-technical user, think of the log ingestion endpoint URL as a unique digital mailbox address. For example, it might look something like this: <br><br><code>https://collector-us-1.arcticwolf.com/ingestion-api/your-unique-token-12345</code><br><br>The `collector` and `ingestion-api` parts tell the server it's receiving data, and `your-unique-token` is the specific key that ensures the data is for your account.",
+                notes: ""
+            },
+            {
+                title: "Step 2: Log in to the Druva Cloud Platform Console",
+                description: "With your Arctic Wolf details ready, log in to your Druva Cloud Platform console using your administrator credentials.",
+                notes: ""
+            },
+            {
+                title: "Step 3: Navigate to the Integration Center",
+                description: "From the main menu in the Druva console, select the 'Integration Center' to manage all third-party connections. Webhooks and APIs are managed in this centralized location.",
+                notes: ""
+            },
+            {
+                title: "Step 4: Configure the Webhook in Druva",
+                description: "In the Integration Center, go to the Webhooks section and click 'Add New Webhook'. Fill in the following details:<ul class='list-disc list-inside mt-2 space-y-1'><li><b>Provider:</b> Choose “Others”</li><li><b>Webhook Name:</b> Provide a clear name, e.g., 'Arctic Wolf SIEM'.</li><li><b>Endpoint URL:</b> Paste the ingestion endpoint URL from Arctic Wolf.</li><li><b>Authorization Type:</b> Select API Key or OAuth, as provided by Arctic Wolf.</li><li><b>Events to Send:</b> Select the relevant events you want to monitor (e.g., backup failures, data anomaly detection alerts).</li></ul>",
+                notes: "After filling in the details, be sure to click 'Test and Save' to confirm the connection."
+            },
+            {
+                title: "Step 5: Select Events to be Sent",
+                description: "This step is part of the webhook configuration in the Druva console. You will specify which types of security events and job statuses from Druva should be pushed to Arctic Wolf's SIEM. You can choose from various event types, such as security alerts, data anomaly warnings, and backup/restore job statuses.",
+                notes: "Selecting relevant events ensures that Arctic Wolf only receives the critical information needed for security monitoring and analysis."
+            },
+            {
+                title: "Step 6: Save and Activate the Configuration",
+                description: "After selecting your desired events, save the webhook configuration in the Druva console. This action activates the integration, and Druva will begin sending real-time event data to the specified Arctic Wolf webhook endpoint.",
+                notes: ""
+            },
+            {
+                title: "Step 7: Verify the Integration in Arctic Wolf",
+                description: "Go back to your Arctic Wolf platform. You should see test events or recent logs appearing in your console, confirming that the webhook integration from Druva is successfully pushing data.",
+                notes: "Confirming the successful ingestion of logs is a crucial final step to ensure the integration is working as expected."
+            }
+        ];
+
+        const stepsContainer = document.getElementById('steps-container');
+        const totalStepsSpan = document.getElementById('total-steps');
+        const completedCountSpan = document.getElementById('completed-count');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const completionSection = document.getElementById('completion-section');
+        const downloadBtnBottom = document.getElementById('download-btn-bottom');
+
+        let completedCount = 0;
+
+        function renderSteps() {
+            totalStepsSpan.textContent = STEPS.length;
+            stepsContainer.innerHTML = '';
+            STEPS.forEach((step, index) => {
+                const stepCard = document.createElement('div');
+                stepCard.className = 'step-card flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 transition-all';
+                stepCard.innerHTML = `
+                    <div class="flex items-center space-x-4 mb-4 sm:mb-0 w-full sm:w-auto">
+                        <input type="checkbox" id="step-${index}" class="form-checkbox h-6 w-6 text-teal-600 rounded-full" />
+                        <label for="step-${index}" class="text-xl font-semibold step-title text-slate-800">
+                            ${step.title}
+                        </label>
+                        <span class="checkmark text-teal-500 text-2xl font-bold ml-2 hidden">✔</span>
+                    </div>
+                    <div class="mt-4 sm:mt-0 w-full">
+                        <p class="text-sm sm:text-base text-slate-600">${step.description}</p>
+                        ${step.notes ? `<p class="text-sm mt-2 text-slate-500 italic">${step.notes}</p>` : ''}
+                    </div>
+                `;
+                stepsContainer.appendChild(stepCard);
+            });
+            attachEventListeners();
+        }
+
+        function updateProgress() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            completedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+            const totalSteps = STEPS.length;
+            const progress = (completedCount / totalSteps) * 100;
+            
+            completedCountSpan.textContent = completedCount;
+            progressText.textContent = `${Math.round(progress)}%`;
+            progressBar.style.width = `${progress}%`;
+
+            if (completedCount === totalSteps) {
+                completionSection.classList.remove('hidden');
+                document.getElementById('app-container').classList.remove('space-y-8');
+            } else {
+                completionSection.classList.add('hidden');
+                document.getElementById('app-container').classList.add('space-y-8');
+            }
+        }
+
+        function toggleStepCardClass(checkbox) {
+            const card = checkbox.closest('.step-card');
+            const checkmark = card.querySelector('.checkmark');
+            if (checkbox.checked) {
+                card.classList.add('step-completed');
+                checkmark.classList.remove('hidden');
+            } else {
+                card.classList.remove('step-completed');
+                checkmark.classList.add('hidden');
+            }
+        }
+
+        function attachEventListeners() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', (event) => {
+                    toggleStepCardClass(event.target);
+                    updateProgress();
+                });
+            });
+            downloadBtnBottom.addEventListener('click', downloadChecklist);
+        }
+
+        function downloadChecklist() {
+            window.print();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderSteps();
+            updateProgress();
+        });
+    </script>
+</body>
+</html>
