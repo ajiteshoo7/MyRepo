@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Druva to Splunk Integration for SIEM Capabilities</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
+    <style>
+        :root {
+            --bg-color: #f3f4f6;
+            --text-color: #1f2937;
+            --card-bg: #ffffff;
+            --card-border-color: #f97316;
+            --heading-color: #1f2937;
+            --sub-heading-color: #f97316;
+            --note-bg: #fffbeb;
+            --note-text: #92400e;
+            --step-text-color: #4b5563;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #111827;
+                --text-color: #e5e7eb;
+                --card-bg: #1f2937;
+                --card-border-color: #f97316;
+                --heading-color: #f3f4f6;
+                --sub-heading-color: #f97316;
+                --note-bg: #1f2937;
+                --note-text: #fde68a;
+                --step-text-color: #d1d5db;
+            }
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .container {
+            max-width: 960px;
+        }
+        .step-card {
+            background-color: var(--card-bg);
+            border-left: 4px solid var(--card-border-color);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+        .step-heading {
+            color: var(--sub-heading-color);
+        }
+        .list-disc-emoji ul {
+            list-style-type: none;
+        }
+        .list-disc-emoji li::before {
+            content: "➡️";
+            margin-right: 0.5rem;
+            color: var(--sub-heading-color);
+        }
+        .intro-note {
+            background-color: var(--note-bg);
+            color: var(--note-text);
+        }
+    </style>
+</head>
+<body class="p-8">
+
+    <div class="container mx-auto py-12">
+        <!-- Header Section -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl sm:text-5xl font-extrabold" style="color: var(--heading-color); leading-tight;">
+                Druva to Splunk Integration for SIEM Capabilities
+            </h1>
+         
+        </header>
+
+        <!-- Introduction -->
+        <section class="mb-12 p-6 rounded-lg intro-note">
+            <p>
+                This guide outlines the process of integrating the Druva Cloud Platform with Splunk, a leading Security Information and Event Management (SIEM) solution. By forwarding security-related events from Druva to Splunk, you can centralize your log data and correlate backup and restore activities with other security events across your environment.
+            </p>
+        </section>
+
+        <!-- Step-by-Step Guide -->
+        <section>
+            <h2 class="text-3xl font-bold mb-8 text-center" style="color: var(--heading-color);">The Integration Process</h2>
+
+            <!-- Step 1 -->
+            <div class="step-card p-6 mb-8 rounded-lg">
+                <h3 class="text-2xl font-bold mb-4 step-heading">Step 1: Install the Druva Add-on for Splunk</h3>
+                <p class="mb-4" style="color: var(--step-text-color);">
+                    The easiest way to integrate Druva is by using the official add-on from Splunkbase.
+                </p>
+                <div class="list-disc-emoji pl-6" style="color: var(--step-text-color);">
+                    <ul>
+                        <li>Log in to your Splunk Web console.</li>
+                        <li>In the Splunk Enterprise app bar, click **Apps > Manage Apps**.</li>
+                        <li>Click **Browse more apps** and search for "Druva".</li>
+                        <li>Click **Install** on the **Druva Add-on for Splunk** page. You may need to restart Splunk after installation.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="step-card p-6 mb-8 rounded-lg">
+                <h3 class="text-2xl font-bold mb-4 step-heading">Step 2: Generate API Credentials in the Druva Console</h3>
+                <p class="mb-4" style="color: var(--step-text-color);">
+                    You'll need to create dedicated API credentials in your Druva console to allow Splunk to securely connect and retrieve event data.
+                </p>
+                <div class="list-disc-emoji pl-6" style="color: var(--step-text-color);">
+                    <ul>
+                        <li>Log in to your Druva Cloud Platform console.</li>
+                        <li>Navigate to **Integration Center** from the main menu.</li>
+                        <li>Click on **Add API Client** and provide a descriptive name, such as "Splunk-Integration".</li>
+                        <li>Grant the client **read-only access** to event and security logs. Avoid granting any other permissions.</li>
+                        <li>After creation, you will be provided with a **Client ID** and a **Client Secret**. Copy these values, as they are shown only once.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="step-card p-6 rounded-lg">
+                <h3 class="text-2xl font-bold mb-4 step-heading">Step 3: Configure the Druva Add-on in Splunk</h3>
+                <p class="mb-4" style="color: var(--step-text-color);">
+                    Now you'll configure the add-on in Splunk with the credentials from Druva.
+                </p>
+                <div class="list-disc-emoji pl-6" style="color: var(--step-text-color);">
+                    <ul>
+                        <li>In your Splunk console, go to **Apps** and find the **Druva Add-on for Splunk**.</li>
+                        <li>Navigate to the **Configuration** or **Inputs** tab.</li>
+                        <li>Click **Add New Input** and enter a descriptive name.</li>
+                        <li>Paste the **Client ID** and **Client Secret** you copied from the Druva console.</li>
+                        <li>(Optional) Configure the **Interval** to set how often Splunk should check for new data. The default is usually every 15 minutes.</li>
+                        <li>Save the configuration. The add-on will now begin pulling event data from Druva.</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Step 4 -->
+            <div class="step-card p-6 mt-8 rounded-lg">
+                <h3 class="text-2xl font-bold mb-4 step-heading">Step 4: Verify Data and Build Dashboards</h3>
+                <p class="mb-4" style="color: var(--step-text-color);">
+                    Once the add-on is configured, you can verify that data is flowing into Splunk and begin using it for monitoring and analysis.
+                </p>
+                <div class="list-disc-emoji pl-6" style="color: var(--step-text-color);">
+                    <ul>
+                        <li>In Splunk, go to the **Search & Reporting** app and run a search for `sourcetype="druva:events"`.</li>
+                        <li>You should see logs from your Druva environment. The add-on automatically parses the data into a usable format.</li>
+                        <li>From here, you can create custom dashboards, build alerts, and run reports on your Druva security events.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final Note -->
+        <section class="mt-12 text-center text-gray-400">
+            <p>
+                This streamlined process, using the official add-on, provides a robust and centralized view of your data protection security posture, enabling you to correlate these events with other security data in your Splunk environment.
+            </p>
+        </section>
+    </div>
+</body>
+</html>

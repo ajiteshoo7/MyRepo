@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Druva to CrowdStrike SIEM Integration Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
+    <style>
+        :root {
+            --bg-color: #f3f4f6;
+            --text-color: #1f2937;
+            --card-bg: #ffffff;
+            --card-border-color: #10B981; /* CrowdStrike's green */
+            --heading-color: #1f2937;
+            --sub-heading-color: #10B981;
+            --note-bg: #e0f2f1;
+            --note-text: #065f46;
+            --step-text-color: #4b5563;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #111827;
+                --text-color: #e5e7eb;
+                --card-bg: #1f2937;
+                --card-border-color: #10B981;
+                --heading-color: #f3f4f6;
+                --sub-heading-color: #10B981;
+                --note-bg: #1f2937;
+                --note-text: #6ee7b7;
+                --step-text-color: #d1d5db;
+            }
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .container {
+            max-width: 960px;
+        }
+        .step-card {
+            background-color: var(--card-bg);
+            border-left: 4px solid var(--card-border-color);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+        .step-heading {
+            color: var(--sub-heading-color);
+        }
+        .list-disc-emoji ul {
+            list-style-type: none;
+        }
+        .list-disc-emoji li::before {
+            content: "➡️";
+            margin-right: 0.5rem;
+            color: var(--sub-heading-color);
+        }
+        .intro-note {
+            background-color: var(--note-bg);
+            color: var(--note-text);
+        }
+    </style>
+</head>
+<body class="p-8">
+
+    <div class="container mx-auto py-12">
+        <!-- Header Section -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl sm:text-5xl font-extrabold" style="color: var(--heading-color); leading-tight;">
+                Druva to CrowdStrike Integration for SIEM Capabilities
+            </h1>
+            
+        </header>
+
+        <!-- Introduction -->
+        <section class="mb-12 p-6 rounded-lg intro-note">
+            <p>
+                This guide provides a detailed process for integrating the Druva Cloud Platform with CrowdStrike. By configuring a **webhook** in Druva to send security events to CrowdStrike, your security operations center (SOC) can gain centralized visibility into both endpoint threats and data protection activities.
+            </p>
+        </section>
+
+        <!-- Prerequisite -->
+        <section class="mb-12 p-6 rounded-lg intro-note">
+            <h2 class="text-xl font-bold mb-4" style="color: var(--note-text);">Prerequisites:</h2>
+            <ul class="list-disc-emoji pl-6 text-gray-700" style="color: var(--note-text);">
+                <li>You must have a **CrowdStrike Falcon Next-Gen SIEM** license or a similar data ingestion plan that supports receiving third-party logs.</li>
+                <li>Ensure you have administrative access to both the **Druva Cloud Platform** and the **CrowdStrike Falcon** console.</li>
+                <li>Your network must allow communication from the Druva cloud to the CrowdStrike API endpoint.</li>
+            </ul>
+        </section>
+
+        <!-- Step-by-Step Guide -->
+        <section>
+            <h2 class="text-3xl font-bold mb-8 text-center" style="color: var(--heading-color);">The Integration Process</h2>
+
+            <!-- Step 1 -->
+            <div class="step-card p-6 mb-8 rounded-lg">
+                <h3 class="text-2xl font-bold mb-4 step-heading">Step 1: Set Up a Data Ingestion API in CrowdStrike</h3>
+                <p class="mb-4" style="color: var(--step-text-color);">
+                    CrowdStrike's SIEM solution provides a dedicated API for ingesting logs from external sources. You will need to create and configure this endpoint.
+                </p>
+                <div class="list-disc-emoji pl-6" style="color: var(--step-text-color);">
+                    <ul>
+                        <li>Log in to the **CrowdStrike Falcon** console.</li>
+                        <li>Navigate to **Integrations > Next-Gen SIEM**.</li>
+                        <li>Find the option to create a **Data Connector** or **Ingestion API** and provide a descriptive name (e.g., "Druva-Events").</li>
+                        <li>CrowdStrike will generate a unique **API Endpoint URL** and an **API Key**. Copy both of these values. The API Key is critical for authentication.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="step-card p-6 mb-8 rounded-lg">
+                <h3 class="text-2xl font-bold mb-4 step-heading">Step 2: Configure the Webhook in the Druva Console</h3>
+                <p class="mb-4" style="color: var(--step-text-color);">
+                    Now you will configure Druva to send its security events to the CrowdStrike endpoint you just created.
+                </p>
+                <div class="list-disc-emoji pl-6" style="color: var(--step-text-color);">
+                    <ul>
+                        <li>Log in to your **Druva Cloud Platform** console.</li>
+                        <li>Navigate to **Integration Center** from the main menu.</li>
+                        <li>Click on **Add Webhook**.</li>
+                        <li>Provide a descriptive **name** for the webhook (e.g., "CrowdStrike-Events").</li>
+                        <li>Paste the full **API Endpoint URL** from CrowdStrike into the webhook URL field.</li>
+                        <li>Find the field for the webhook API key or token and paste the **API Key** you copied from CrowdStrike.</li>
+                        <li>Select the specific **event categories** you want to send. Recommended categories include **Security Events** and **Audit Events**.</li>
+                        <li>Save the webhook configuration.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="step-card p-6 rounded-lg">
+                <h3 class="text-2xl font-bold mb-4 step-heading">Step 3: Verify Data Ingestion and Correlation</h3>
+                <p class="mb-4" style="color: var(--step-text-color);">
+                    The final step is to confirm that events are being successfully sent from Druva and are visible within CrowdStrike's SIEM.
+                </p>
+                <div class="list-disc-emoji pl-6" style="color: var(--step-text-color);">
+                    <ul>
+                        <li>In your CrowdStrike Falcon console, navigate to the **SIEM** or **Event Search** area.</li>
+                        <li>Search for a security event from Druva. For example, you can perform a login/logout action in Druva to trigger a test event.</li>
+                        <li>The logs should appear in the CrowdStrike console, where you can now use them to build custom dashboards, set up alerts, and create correlation rules.</li>
+                    </ul>
+                </div>
+                <p class="mt-4 text-sm text-gray-400 italic">
+                    Example of a correlated event: You can create a rule to alert your SOC team if a "ransomware detected" event from CrowdStrike coincides with a "large file deletion" or "restore initiated" event from Druva for the same user or device.
+                </p>
+            </div>
+        </section>
+
+        <!-- Final Note -->
+        <section class="mt-12 text-center text-gray-400">
+            <p>
+                This streamlined process provides a powerful way to unify your data protection and endpoint security telemetry, enabling your team to respond to threats with more context and speed.
+            </p>
+        </section>
+    </div>
+</body>
+</html>
