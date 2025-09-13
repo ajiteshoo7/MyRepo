@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top EDR Tools and SIEM Capabilities</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+        .container {
+            max-width: 1100px;
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+        th, td {
+            padding: 12px 16px;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body class="p-8">
+
+    <div class="container mx-auto py-12">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-gray-900 leading-tight">
+                Top EDR Tools and Their SIEM Capabilities
+            </h1>
+            <p class="mt-4 text-xl text-gray-600">
+                A comparison of leading Endpoint Detection and Response solutions and their add-on SIEM/XDR features.
+            </p>
+        </header>
+
+        <section class="bg-white rounded-xl p-6 shadow-lg mb-12">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">Key Takeaways</h2>
+            <ul class="list-disc list-inside text-gray-700 space-y-2">
+                <li>Most top-tier EDR vendors have expanded their platforms to include SIEM-like features, often branded as **XDR (Extended Detection and Response)** or **Next-Gen SIEM**.</li>
+                <li>These advanced log ingestion and correlation capabilities are **not** part of the standard EDR license and require an additional, separate purchase.</li>
+                <li>The extra cost is typically based on data ingestion volume (per GB) or by the number of endpoints/users, and is often priced through custom quotes.</li>
+            </ul>
+        </section>
+
+        <section class="table-container bg-white rounded-xl shadow-lg">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vendor & Product</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Has SIEM/XDR Feature?</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Feature Name</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expected Extra Cost</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <tr>
+                        <td class="px-6 py-4">
+                            <div class="text-sm font-semibold text-gray-900">CrowdStrike Falcon</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Yes</span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            Falcon Next-Gen SIEM
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            Priced separately based on data ingestion volume. Pricing is typically not public.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4">
+                            <div class="text-sm font-semibold text-gray-900">SentinelOne Singularity</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Yes</span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            Singularity AI SIEM
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            An additional license based on data ingestion (per GB). Example pricing for 1GB/day is around $35/month.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4">
+                            <div class="text-sm font-semibold text-gray-900">Microsoft Defender</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Yes</span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            Microsoft Sentinel
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            Separate product with costs based on data volume ingested (per GB), or by commitment tiers.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4">
+                            <div class="text-sm font-semibold text-gray-900">Palo Alto Networks Cortex XDR</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Yes</span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            Cortex XDR Pro per Gigabyte
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            Requires a custom quote, often priced per GB of ingested data.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4">
+                            <div class="text-sm font-semibold text-gray-900">Sophos Intercept X</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Yes</span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            Sophos XDR
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            Included with a Sophos XDR subscription, which is a higher-tier product.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4">
+                            <div class="text-sm font-semibold text-gray-900">Trend Micro Vision One</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Yes</span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            Vision One XDR
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            Available as an add-on license for users or based on network bandwidth (per Mbps).
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4">
+                            <div class="text-sm font-semibold text-gray-900">Cybereason</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Yes</span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            Cybereason XDR
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            XDR capabilities are included in higher-tier bundles (e.g., Enterprise Advanced, Enterprise Complete).
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4">
+                            <div class="text-sm font-semibold text-gray-900">VMware Carbon Black</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Yes</span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            Carbon Black Cloud
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            Advanced features that enable SIEM-like functions are part of more expensive packages.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4">
+                            <div class="text-sm font-semibold text-gray-900">Trellix EDR</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Yes</span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            Trellix XDR Platform
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            Offered as a unified platform. Pricing requires a custom quote.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4">
+                            <div class="text-sm font-semibold text-gray-900">Cisco Secure Endpoint</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Yes</span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            Cisco XDR
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            A separate offering that integrates with existing Cisco products. Pricing is custom.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4">
+                            <div class="text-sm font-semibold text-gray-900">Kaspersky EDR</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Yes</span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            Kaspersky Unified Monitoring
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            Part of their security platform, enabling integration with SIEM. Pricing is not public.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4">
+                            <div class="text-sm font-semibold text-gray-900">Broadcom Symantec EDR</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Yes</span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            Symantec Endpoint Security Complete
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            A comprehensive security suite with EDR and SIEM integration. Requires a custom quote.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4">
+                            <div class="text-sm font-semibold text-gray-900">Fortinet FortiEDR</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Yes</span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            Fortinet Security Fabric
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            Integrates with the Fortinet ecosystem. Pricing is not public and requires a custom quote.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4">
+                            <div class="text-sm font-semibold text-gray-900">Acronis Cyber Protect</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Yes</span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            Acronis Cyber Protect Cloud
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            Pricing is subscription-based, often bundled with backup and disaster recovery.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4">
+                            <div class="text-sm font-semibold text-gray-900">Wazuh</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Yes</span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            Wazuh Open Source Platform
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            Open-source, no license cost. Cloud service and enterprise support plans are available at an extra cost.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Final Note -->
+        <section class="mt-12 text-center text-gray-600">
+            <p>
+                This table provides a high-level overview. For precise pricing and features, it is always recommended to contact the vendor directly for a custom quote based on your specific needs.
+            </p>
+        </section>
+    </div>
+</body>
+</html>
