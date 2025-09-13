@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azure VM Optimization Checklist</title>
+    <!-- Use Tailwind CSS for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        .checklist-container {
+            background-color: #ffffff;
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            max-width: 768px;
+            width: 100%;
+        }
+        .task {
+            display: flex;
+            align-items: center;
+            padding: 1.25rem 1rem;
+            margin-bottom: 0.75rem;
+            background-color: #f9fafb;
+            border-radius: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 2px solid transparent;
+        }
+        .task:hover {
+            transform: translateY(-2px);
+            box-shadow: 4px 8px 10px rgba(0, 0, 0, 0.05);
+        }
+        .task.completed {
+            background-color: #d1fae5;
+            text-decoration: line-through;
+            color: #4b5563;
+        }
+        .checkbox-icon {
+            width: 1.5rem;
+            height: 1.5rem;
+            border: 2px solid #6b7280;
+            border-radius: 0.375rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 1rem;
+            flex-shrink: 0;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        .task.completed .checkbox-icon {
+            background-color: #10b981;
+            border-color: #10b981;
+        }
+        .task.completed .checkbox-icon svg {
+            display: block;
+        }
+        .task:not(.completed) .checkbox-icon svg {
+            display: none;
+        }
+        .task-text {
+            flex-grow: 1;
+        }
+        .task h3 {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 1.125rem;
+            margin-bottom: 0.25rem;
+        }
+        .task p {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        .download-btn {
+            background-color: #10b981;
+            color: white;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            border-radius: 0.75rem;
+            transition: background-color 0.2s, transform 0.2s;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            display: block;
+            width: 100%;
+            text-align: center;
+            margin-top: 2rem;
+        }
+        .download-btn:hover {
+            background-color: #059669;
+            transform: translateY(-2px);
+        }
+        h1 {
+            color: #1f2937;
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .tip-box {
+            background-color: #e0f2fe;
+            border-left: 4px solid #38bdf8;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 2rem;
+        }
+        .tip-box p {
+            font-size: 0.875rem;
+            color: #0c4a6e;
+        }
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 1.5rem;
+        }
+        @media (min-width: 640px) {
+            .input-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        .input-group label {
+            display: block;
+            color: #1f2937;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            background-color: #f9fafb;
+        }
+        /* Styles for PDF print mode */
+        @media print {
+            body {
+                background-color: #fff;
+                color: #000;
+                padding: 0;
+                display: block;
+            }
+            .checklist-container {
+                box-shadow: none;
+                padding: 0;
+            }
+            .download-btn, .tip-box {
+                display: none;
+            }
+            .task {
+                background-color: transparent;
+                text-decoration: none;
+                border: 1px solid #e5e7eb;
+            }
+            .task.completed {
+                background-color: #d1fae5 !important;
+                text-decoration: none !important;
+                color: #000 !important;
+            }
+            .task:hover {
+                transform: none;
+                box-shadow: none;
+            }
+            h1 {
+                font-size: 1.5rem;
+                text-align: left;
+                margin-bottom: 1rem;
+            }
+            /* Ensure the checkmark is still black on a light background */
+            .task.completed .checkbox-icon svg {
+                color: #000 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="checklist-container">
+        <h1>Azure VM Optimization Checklist</h1>
+        <div class="tip-box">
+            <p>Click on each item to mark it as complete. Once you are done, click the "Download as PDF" button at the bottom of the page.</p>
+        </div>
+        
+        <!-- Existing Environment Details Section -->
+        <h2 class="text-xl font-bold text-gray-800 mb-4">Existing Environment Details</h2>
+        <div class="input-grid">
+            <div class="input-group">
+                <label for="azureVms">Azure Configured VMs:</label>
+                <input type="text" id="azureVms" placeholder="e.g., 50 VMs" class="w-full">
+            </div>
+            <div class="input-group">
+                <label for="vmTotalSubscription">Azure VM Total Subscription:</label>
+                <input type="text" id="vmTotalSubscription" placeholder="e.g., 3 Subscriptions" class="w-full">
+            </div>
+            <div class="input-group">
+                <label for="totalDataTb">Azure Total Data TB:</label>
+                <input type="text" id="totalDataTb" placeholder="e.g., 25 TB" class="w-full">
+            </div>
+            <div class="input-group">
+                <label for="azureAutoconfig">Azure Autoconfig:</label>
+                <input type="text" id="azureAutoconfig" placeholder="e.g., Yes/No" class="w-full">
+            </div>
+            <div class="input-group">
+                <label for="sourceSizeVm">Azure VM Source Size In TB:</label>
+                <input type="text" id="sourceSizeVm" placeholder="e.g., 18 TB" class="w-full">
+            </div>
+            <div class="input-group">
+                <label for="sqlSourceSize">Azure SQL Source Size In TB:</label>
+                <input type="text" id="sqlSourceSize" placeholder="e.g., 7 TB" class="w-full">
+            </div>
+            <div class="input-group">
+                <label for="totalSourcePlus">Azure VM Total Source Plus:</label>
+                <input type="text" id="totalSourcePlus" placeholder="e.g., 25 TB" class="w-full">
+            </div>
+            <div class="input-group">
+                <label for="creditConsumptionRate">Credit Consumption Rate:</label>
+                <input type="text" id="creditConsumptionRate" placeholder="e.g., 1.5 credits/day" class="w-full">
+            </div>
+        </div>
+        
+        <div id="checklist">
+            <!-- Items will be generated by JavaScript -->
+        </div>
+
+        <button id="downloadBtn" class="download-btn">
+            Download as PDF
+        </button>
+    </div>
+
+    <script>
+        // Data for the checklist items
+        const checklistItems = [
+            {
+                title: "Azure Subscription & VM-Level Optimization",
+                description: "Review and exclude non-critical subscriptions, resource groups, and entire VMs that do not require backup."
+            },
+            {
+                title: "Disk-Level Exclusions",
+                description: "Identify and exclude non-essential disks (e.g., disks for temporary data, logs, or local storage) from the backup policy."
+            },
+            {
+                title: "Folder and File Exclusions",
+                description: "Use exclusion filters to prevent backup of specific non-essential folders or file types within VMs, such as C:\\temp or *.log files."
+            },
+            {
+                title: "Backup Frequency Adjustment",
+                description: "Review and adjust the backup frequency to match the workload's change rate. For static VMs, reduce the schedule to a single daily backup."
+            },
+            {
+                title: "Retention Policy Optimization",
+                description: "Implement a tiered retention policy. Keep daily backups for a short period (e.g., 30 days) and weekly/monthly backups for longer-term needs."
+            },
+            {
+                title: "SQL Server Optimization",
+                description: "Identify and exclude non-critical SQL databases. Ensure application-consistent backups are enabled to properly truncate logs."
+            },
+            {
+                title: "Implement Log Backups for SQL",
+                description: "Configure log backups for SQL servers to enable point-in-time recovery, which provides granular restore options with minimal storage overhead."
+            }
+        ];
+
+        // Function to render the checklist items
+        function renderChecklist() {
+            const checklistDiv = document.getElementById('checklist');
+            checklistDiv.innerHTML = ''; // Clear existing content
+            
+            checklistItems.forEach((item, index) => {
+                const taskDiv = document.createElement('div');
+                taskDiv.classList.add('task');
+                taskDiv.dataset.index = index;
+                
+                // Load completion status from local storage
+                const isCompleted = localStorage.getItem(`task-${index}`) === 'true';
+                if (isCompleted) {
+                    taskDiv.classList.add('completed');
+                }
+
+                taskDiv.innerHTML = `
+                    <div class="checkbox-icon">
+                        <!-- Checkmark icon using SVG for a clean look -->
+                        <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                    </div>
+                    <div class="task-text">
+                        <h3 class="font-semibold text-gray-800">${item.title}</h3>
+                        <p class="text-sm text-gray-500">${item.description}</p>
+                    </div>
+                `;
+                
+                taskDiv.addEventListener('click', () => toggleTask(index));
+                checklistDiv.appendChild(taskDiv);
+            });
+        }
+        
+        // Function to toggle task completion and save to local storage
+        function toggleTask(index) {
+            const taskElement = document.querySelector(`.task[data-index='${index}']`);
+            if (taskElement) {
+                const isCompleted = taskElement.classList.toggle('completed');
+                localStorage.setItem(`task-${index}`, isCompleted);
+            }
+        }
+
+        // Handle download button click
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            window.print();
+        });
+
+        // Render the checklist on page load
+        window.onload = renderChecklist;
+
+    </script>
+</body>
+</html>

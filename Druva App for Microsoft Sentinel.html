@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Guide: Druva App for Microsoft Sentinel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .step-connector {
+            position: absolute;
+            top: 1.5rem;
+            left: 1.5rem;
+            width: 2px;
+            height: calc(100% - 1.5rem);
+            background-color: #e5e7eb; 
+        }
+        .step-item:last-child .step-connector {
+            display: none;
+        }
+    </style>
+    <!-- Chosen Palette: Slate and Sky Blue -->
+    <!-- Application Structure Plan: The application is structured as a single-page, vertically scrolling guide. It now includes a new phase for "Advanced Configurations" covering playbooks and Copilot for Security. This is in addition to the initial Azure environment setup, app overview, and the prerequisites checklist. The modular, task-oriented design of expandable, interactive steps was chosen to break down the entire technical process into manageable, logical chunks, making it highly intuitive for users to follow and track their progress from start to finish. -->
+    <!-- Visualization & Content Choices: The primary visualization remains a custom-built interactive timeline using HTML/CSS and Tailwind. Goal: Organize and guide the user through a complex procedure. Method: Interactive checklist within each step. Interaction: Clicking a step expands its details. Justification: This linear, interactive format is more engaging and provides a clear sense of progression, which is ideal for a tutorial. For the prerequisites, a tabbed layout is used. Goal: Inform and organize. Method: HTML tabs. Interaction: Clicking tabs switches between content. Justification: This separates distinct but related information for better clarity. No charts were needed for this procedural document. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-5xl">
+        
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-slate-900">Druva App for Microsoft Sentinel</h1>
+            <p class="mt-2 text-lg text-slate-600">An Interactive Installation & Configuration Guide</p>
+        </header>
+
+        <main>
+            <!-- Overview Section -->
+            <section id="overview" class="mb-12 bg-white p-8 rounded-xl shadow-sm">
+                <h2 class="text-2xl font-bold text-slate-900 mb-4">Overview</h2>
+                <p class="text-slate-600 mb-6">This guide provides a comprehensive, step-by-step walkthrough for integrating the Druva Data Security Cloud with Microsoft Sentinel. By connecting Druva to Sentinel, you can stream critical security and operational events, enabling unified threat detection, proactive monitoring, and streamlined incident response within a single platform.</p>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-slate-100 p-6 rounded-lg">
+                        <h3 class="font-semibold text-slate-800 mb-2">Key Features</h3>
+                        <ul class="space-y-2 text-slate-600">
+                            <li class="flex items-start"><span class="text-sky-500 mr-2 mt-1">➔</span> Unified visibility into backup and security events.</li>
+                            <li class="flex items-start"><span class="text-sky-500 mr-2 mt-1">➔</span> Real-time alerts for suspicious activities and data anomalies.</li>
+                            <li class="flex items-start"><span class="text-sky-500 mr-2 mt-1">➔</span> Automated response workflows with pre-built playbooks.</li>
+                            <li class="flex items-start"><span class="text-sky-500 mr-2 mt-1">➔</span> Bidirectional sync to quarantine snapshots from Sentinel.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-slate-100 p-6 rounded-lg">
+                        <h3 class="font-semibold text-slate-800 mb-2">Benefits</h3>
+                        <ul class="space-y-2 text-slate-600">
+                            <li class="flex items-start"><span class="text-sky-500 mr-2 mt-1">✓</span> Enhance threat detection with backup telemetry.</li>
+                            <li class="flex items-start"><span class="text-sky-500 mr-2 mt-1">✓</span> Accelerate incident response and recovery.</li>
+                            <li class="flex items-start"><span class="text-sky-500 mr-2 mt-1">✓</span> Improve security posture and compliance reporting.</li>
+                            <li class="flex items-start"><span class="text-sky-500 mr-2 mt-1">✓</span> Centralize security operations for IT and SecOps teams.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Prerequisites Section -->
+            <section id="prerequisites" class="mb-12">
+                <h2 class="text-2xl font-bold text-slate-900 mb-4 text-center">Prerequisites Checklist</h2>
+                <div class="bg-white p-8 rounded-xl shadow-sm">
+                    <div id="tabs-container" class="mb-4 border-b border-slate-200">
+                        <nav class="flex space-x-8" aria-label="Tabs">
+                            <button onclick="changeTab('azure')" id="tab-azure" class="tab-button text-sky-600 border-sky-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Azure & Sentinel</button>
+                            <button onclick="changeTab('druva')" id="tab-druva" class="tab-button text-slate-500 hover:text-slate-700 hover:border-slate-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Druva Platform</button>
+                        </nav>
+                    </div>
+                    <div id="tab-content-azure" class="tab-content">
+                        <ul class="space-y-4">
+                            <li class="flex items-center"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-sky-600 focus:ring-sky-500 mr-3"><span class="text-slate-700">Active Azure Subscription with necessary permissions.</span></li>
+                            <li class="flex items-center"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-sky-600 focus:ring-sky-500 mr-3"><span class="text-slate-700">A Log Analytics workspace with Microsoft Sentinel enabled.</span></li>
+                            <li class="flex items-center"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-sky-600 focus:ring-sky-500 mr-3"><span class="text-slate-700"><strong>Contributor</strong> permissions on the Azure subscription.</span></li>
+                            <li class="flex items-center"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-sky-600 focus:ring-sky-500 mr-3"><span class="text-slate-700"><strong>Microsoft Sentinel Contributor</strong> permissions on the resource group.</span></li>
+                        </ul>
+                    </div>
+                    <div id="tab-content-druva" class="tab-content hidden">
+                        <ul class="space-y-4">
+                            <li class="flex items-center"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-sky-600 focus:ring-sky-500 mr-3"><span class="text-slate-700">Druva API Client ID and Client Secret generated.</span></li>
+                            <li class="flex items-center"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-sky-600 focus:ring-sky-500 mr-3"><span class="text-slate-700">Appropriate Druva license (e.g., Accelerated Ransomware Recovery).</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Installation Steps Section -->
+            <section id="installation">
+                <h2 class="text-2xl font-bold text-slate-900 mb-8 text-center">Installation & Configuration Steps</h2>
+                <div class="space-y-8">
+                     <!-- Phase 0 -->
+                    <div class="bg-white p-8 rounded-xl shadow-sm">
+                        <h3 class="text-xl font-bold text-sky-700 mb-6">Phase 0: Azure Environment Setup</h3>
+                        <div class="relative">
+                            <div class="step-item relative pb-8 pl-12" data-step="1">
+                                <div class="step-connector"></div>
+                                <div class="absolute top-0 left-0 flex items-center justify-center w-12 h-12 bg-slate-200 rounded-full">
+                                    <span class="text-slate-600 font-bold text-lg">1</span>
+                                </div>
+                                <div class="cursor-pointer" onclick="toggleStep(1)">
+                                    <h4 class="font-semibold text-lg text-slate-800">Create a Dedicated Resource Group</h4>
+                                    <p class="text-slate-500">Organize all your Sentinel resources in one place for easier management.</p>
+                                </div>
+                                <div id="step-details-1" class="hidden mt-4 pl-4 border-l-2 border-slate-200">
+                                    <ol class="list-decimal list-inside text-slate-600 space-y-2">
+                                        <li>In the Azure portal, search for and select <strong>Resource groups</strong>.</li>
+                                        <li>Click <strong>+ Create</strong>.</li>
+                                        <li>Enter a name (e.g., `DruvaSentinel-RG`), select your subscription, and choose a region.</li>
+                                        <li>Click <strong>Review + create</strong> and then <strong>Create</strong>.</li>
+                                    </ol>
+                                    <label class="flex items-center mt-2"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-sky-600 focus:ring-sky-500 mr-2"><span>Mark as complete</span></label>
+                                </div>
+                            </div>
+                            <div class="step-item relative pl-12" data-step="2">
+                                <div class="absolute top-0 left-0 flex items-center justify-center w-12 h-12 bg-slate-200 rounded-full">
+                                    <span class="text-slate-600 font-bold text-lg">2</span>
+                                </div>
+                                <div class="cursor-pointer" onclick="toggleStep(2)">
+                                    <h4 class="font-semibold text-lg text-slate-800">Create a Log Analytics Workspace</h4>
+                                    <p class="text-slate-500">This workspace will house all your security event data.</p>
+                                </div>
+                                <div id="step-details-2" class="hidden mt-4 pl-4 border-l-2 border-slate-200">
+                                    <ol class="list-decimal list-inside text-slate-600 space-y-2">
+                                        <li>In the Azure portal, search for and select <strong>Log Analytics workspaces</strong>.</li>
+                                        <li>Click <strong>+ Create</strong>.</li>
+                                        <li>Select the resource group you just created.</li>
+                                        <li>Enter a name for the workspace (e.g., `DruvaSentinel-Workspace`), and click <strong>Review + create</strong>.</li>
+                                        <li>Click <strong>Create</strong>.</li>
+                                    </ol>
+                                    <label class="flex items-center mt-2"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-sky-600 focus:ring-sky-500 mr-2"><span>Mark as complete</span></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Phase 1 -->
+                    <div class="bg-white p-8 rounded-xl shadow-sm">
+                        <h3 class="text-xl font-bold text-sky-700 mb-6">Phase 1: Deploy Druva App from Azure Marketplace</h3>
+                        <div class="relative">
+                            <div class="step-item relative pb-8 pl-12" data-step="3">
+                                <div class="step-connector"></div>
+                                <div class="absolute top-0 left-0 flex items-center justify-center w-12 h-12 bg-slate-200 rounded-full">
+                                    <span class="text-slate-600 font-bold text-lg">3</span>
+                                </div>
+                                <div class="cursor-pointer" onclick="toggleStep(3)">
+                                    <h4 class="font-semibold text-lg text-slate-800">Find the App in Azure Marketplace</h4>
+                                    <p class="text-slate-500">Access the Marketplace and search for the Druva integration.</p>
+                                </div>
+                                <div id="step-details-3" class="hidden mt-4 pl-4 border-l-2 border-slate-200">
+                                    <p class="mb-2 text-slate-600">Sign in to the Azure portal, navigate to the Marketplace, and search for "Druva Integration with Microsoft Sentinel".</p>
+                                    <label class="flex items-center"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-sky-600 focus:ring-sky-500 mr-2"><span>Mark as complete</span></label>
+                                </div>
+                            </div>
+                            <div class="step-item relative pb-8 pl-12" data-step="4">
+                                <div class="step-connector"></div>
+                                <div class="absolute top-0 left-0 flex items-center justify-center w-12 h-12 bg-slate-200 rounded-full">
+                                    <span class="text-slate-600 font-bold text-lg">4</span>
+                                </div>
+                                <div class="cursor-pointer" onclick="toggleStep(4)">
+                                    <h4 class="font-semibold text-lg text-slate-800">Initiate Deployment</h4>
+                                    <p class="text-slate-500">Start the installation process by adding the app to your tenant.</p>
+                                </div>
+                                <div id="step-details-4" class="hidden mt-4 pl-4 border-l-2 border-slate-200">
+                                    <p class="mb-2 text-slate-600">Click on the app and select "Get it now" to begin the deployment wizard.</p>
+                                    <label class="flex items-center"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-sky-600 focus:ring-sky-500 mr-2"><span>Mark as complete</span></label>
+                                </div>
+                            </div>
+                            <div class="step-item relative pl-12" data-step="5">
+                                <div class="absolute top-0 left-0 flex items-center justify-center w-12 h-12 bg-slate-200 rounded-full">
+                                    <span class="text-slate-600 font-bold text-lg">5</span>
+                                </div>
+                                <div class="cursor-pointer" onclick="toggleStep(5)">
+                                    <h4 class="font-semibold text-lg text-slate-800">Configure Project Details</h4>
+                                    <p class="text-slate-500">Assign the app to your specific Sentinel workspace.</p>
+                                </div>
+                                <div id="step-details-5" class="hidden mt-4 pl-4 border-l-2 border-slate-200">
+                                    <ul class="list-disc list-inside text-slate-600 space-y-2">
+                                        <li>Select your Azure <strong>Subscription</strong>.</li>
+                                        <li>Choose the correct <strong>Resource Group</strong>.</li>
+                                        <li>Select the target Sentinel-enabled <strong>Workspace Name</strong>.</li>
+                                        <li>Follow the prompts to review and complete the deployment.</li>
+                                    </ul>
+                                    <label class="flex items-center mt-2"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-sky-600 focus:ring-sky-500 mr-2"><span>Mark as complete</span></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Phase 2 -->
+                    <div class="bg-white p-8 rounded-xl shadow-sm">
+                        <h3 class="text-xl font-bold text-sky-700 mb-6">Phase 2: Configure the Data Connector</h3>
+                        <div class="relative">
+                           <div class="step-item relative pb-8 pl-12" data-step="6">
+                                <div class="step-connector"></div>
+                                <div class="absolute top-0 left-0 flex items-center justify-center w-12 h-12 bg-slate-200 rounded-full">
+                                    <span class="text-slate-600 font-bold text-lg">6</span>
+                                </div>
+                                <div class="cursor-pointer" onclick="toggleStep(6)">
+                                    <h4 class="font-semibold text-lg text-slate-800">Navigate to Data Connectors</h4>
+                                    <p class="text-slate-500">Find the newly installed Druva connector in Sentinel.</p>
+                                </div>
+                                <div id="step-details-6" class="hidden mt-4 pl-4 border-l-2 border-slate-200">
+                                    <p class="mb-2 text-slate-600">In your Sentinel workspace, go to <strong>Configuration > Data Connectors</strong> and search for "Druva Events Connector".</p>
+                                    <label class="flex items-center"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-sky-600 focus:ring-sky-500 mr-2"><span>Mark as complete</span></label>
+                                </div>
+                            </div>
+                             <div class="step-item relative pb-8 pl-12" data-step="7">
+                                <div class="step-connector"></div>
+                                <div class="absolute top-0 left-0 flex items-center justify-center w-12 h-12 bg-slate-200 rounded-full">
+                                    <span class="text-slate-600 font-bold text-lg">7</span>
+                                </div>
+                                <div class="cursor-pointer" onclick="toggleStep(7)">
+                                    <h4 class="font-semibold text-lg text-slate-800">Provide Druva API Credentials</h4>
+                                    <p class="text-slate-500">Enter your Druva API details to authorize the connection.</p>
+                                </div>
+                                <div id="step-details-7" class="hidden mt-4 pl-4 border-l-2 border-slate-200">
+                                    <p class="mb-2 text-slate-600">On the connector page, input the following:</p>
+                                    <ul class="list-disc list-inside text-slate-600 space-y-2">
+                                        <li><strong>Hostname:</strong> `apis.druva.com` (for Public Cloud)</li>
+                                        <li><strong>Client ID:</strong> Your Druva API Client ID.</li>
+                                        <li><strong>Client Secret:</strong> Your Druva API Client Secret.</li>
+                                    </ul>
+                                    <label class="flex items-center mt-2"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-sky-600 focus:ring-sky-500 mr-2"><span>Mark as complete</span></label>
+                                </div>
+                            </div>
+                            <div class="step-item relative pl-12" data-step="8">
+                                <div class="absolute top-0 left-0 flex items-center justify-center w-12 h-12 bg-slate-200 rounded-full">
+                                    <span class="text-slate-600 font-bold text-lg">8</span>
+                                </div>
+                                <div class="cursor-pointer" onclick="toggleStep(8)">
+                                    <h4 class="font-semibold text-lg text-slate-800">Verify Connection & Data Flow</h4>
+                                    <p class="text-slate-500">Confirm that Druva events are being ingested into Sentinel.</p>
+                                </div>
+                                <div id="step-details-8" class="hidden mt-4 pl-4 border-l-2 border-slate-200">
+                                    <p class="mb-2 text-slate-600">After clicking "Connect", check the status on the connector page. Then, navigate to the <strong>Logs</strong> section and run a KQL query to see the data:</p>
+                                    <pre class="bg-slate-900 text-white p-4 rounded-md text-sm"><code>DruvaSecurityEvents_CL | take 10</code></pre>
+                                    <label class="flex items-center mt-2"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-sky-600 focus:ring-sky-500 mr-2"><span>Mark as complete</span></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Phase 3 -->
+                    <div class="bg-white p-8 rounded-xl shadow-sm">
+                        <h3 class="text-xl font-bold text-sky-700 mb-6">Phase 3: Advanced Configurations</h3>
+                        <div class="relative">
+                            <div class="step-item relative pb-8 pl-12" data-step="9">
+                                <div class="step-connector"></div>
+                                <div class="absolute top-0 left-0 flex items-center justify-center w-12 h-12 bg-slate-200 rounded-full">
+                                    <span class="text-slate-600 font-bold text-lg">9</span>
+                                </div>
+                                <div class="cursor-pointer" onclick="toggleStep(9)">
+                                    <h4 class="font-semibold text-lg text-slate-800">Configure Playbooks</h4>
+                                    <p class="text-slate-500">Set up automated response workflows to act on threats.</p>
+                                </div>
+                                <div id="step-details-9" class="hidden mt-4 pl-4 border-l-2 border-slate-200">
+                                    <p class="mb-2 text-slate-600">The Druva solution includes pre-built playbooks to automate responses. To use them:</p>
+                                    <ol class="list-decimal list-inside text-slate-600 space-y-2">
+                                        <li>In Sentinel, navigate to <strong>Automation</strong> > <strong>Playbooks</strong>.</li>
+                                        <li>Find the Druva-related playbooks (e.g., for quarantining snapshots).</li>
+                                        <li>Click on a playbook to view its details and deploy it.</li>
+                                        <li>Configure any required connections or parameters for the playbook to function.</li>
+                                    </ol>
+                                    <label class="flex items-center mt-2"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-sky-600 focus:ring-sky-500 mr-2"><span>Mark as complete</span></label>
+                                </div>
+                            </div>
+                             <div class="step-item relative pl-12" data-step="10">
+                                <div class="absolute top-0 left-0 flex items-center justify-center w-12 h-12 bg-slate-200 rounded-full">
+                                    <span class="text-slate-600 font-bold text-lg">10</span>
+                                </div>
+                                <div class="cursor-pointer" onclick="toggleStep(10)">
+                                    <h4 class="font-semibold text-lg text-slate-800">Enable Copilot for Security Plugin</h4>
+                                    <p class="text-slate-500">Integrate with AI to enhance threat detection and analysis.</p>
+                                </div>
+                                <div id="step-details-10" class="hidden mt-4 pl-4 border-l-2 border-slate-200">
+                                    <p class="mb-2 text-slate-600">Druva offers a plugin for Microsoft Copilot for Security, which uses AI to provide deeper insights. To enable it:</p>
+                                    <ol class="list-decimal list-inside text-slate-600 space-y-2">
+                                        <li>In your Copilot for Security account, go to the <strong>Non-Microsoft plugin</strong> section.</li>
+                                        <li>Find the <strong>Druva Sentinel Plugin</strong> and click <strong>Setup</strong>.</li>
+                                        <li>Provide your Sentinel environment details: Tenant ID, Subscription ID, Workspace Name, and Resource Group Name.</li>
+                                        <li>Click <strong>Save</strong> to verify and enable the plugin.</li>
+                                    </ol>
+                                    <label class="flex items-center mt-2"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-sky-600 focus:ring-sky-500 mr-2"><span>Mark as complete</span></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="text-center mt-12 pt-8 border-t border-slate-200">
+            <p class="text-slate-500">This interactive guide is based on the official Druva documentation.</p>
+        </footer>
+    </div>
+
+    <script>
+        function changeTab(tabName) {
+            const tabs = document.querySelectorAll('.tab-button');
+            const contents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach(tab => {
+                tab.classList.remove('text-sky-600', 'border-sky-600');
+                tab.classList.add('text-slate-500', 'hover:text-slate-700', 'hover:border-slate-300');
+            });
+
+            contents.forEach(content => {
+                content.classList.add('hidden');
+            });
+
+            const selectedTab = document.getElementById(`tab-${tabName}`);
+            const selectedContent = document.getElementById(`tab-content-${tabName}`);
+
+            selectedTab.classList.add('text-sky-600', 'border-sky-600');
+            selectedTab.classList.remove('text-slate-500', 'hover:text-slate-700', 'hover:border-slate-300');
+            selectedContent.classList.remove('hidden');
+        }
+
+        function toggleStep(stepNumber) {
+            const details = document.getElementById(`step-details-${stepNumber}`);
+            details.classList.toggle('hidden');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            toggleStep(1);
+        });
+    </script>
+
+</body>
+</html>
