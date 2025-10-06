@@ -1,4 +1,18 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Account Tracker-Ajitesh</title><link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%233b82f6'></rect><rect x='20' y='50' width='15' height='30' fill='white'></rect><rect x='42.5' y='30' width='15' height='50' fill='white'></rect><rect x='65' y='60' width='15' height='20' fill='white'></rect></svg>"><!-- Tailwind CSS for styling --><script src="https://cdn.tailwindcss.com"></script><!-- Font Awesome for Icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"><!-- Google Fonts: Inter --><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></head><body class="bg-gray-100 text-gray-800 font-[Inter]"><div class="container mx-auto p-4">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Tracker-Ajitesh</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%233b82f6'></rect><rect x='20' y='50' width='15' height='30' fill='white'></rect><rect x='42.5' y='30' width='15' height='50' fill='white'></rect><rect x='65' y='60' width='15' height='20' fill='white'></rect></svg>"><!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script><!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"><!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100 text-gray-800 font-[Inter]">
+<div class="container mx-auto p-4">
     <!-- Header -->
     <header class="mb-6">
         <h1 class="text-4xl font-bold text-gray-800">Account Connect Tracker</h1>
@@ -12,8 +26,8 @@
         <div class="bg-white rounded-xl shadow-lg flex flex-col h-[calc(100vh-150px)]">
             <div class="p-4 border-b border-gray-200">
                 <div class="flex items-center justify-between mb-2">
-                     <h2 class="text-xl font-bold">My Accounts <span id="account-total-count" class="text-gray-500 font-normal"></span></h2>
-                     <div id="loading-spinner" class="spinner w-8 h-8 hidden"></div>
+                    <h2 class="text-xl font-bold">My Accounts <span id="account-total-count" class="text-gray-500 font-normal"></span></h2>
+                    <div id="loading-spinner" class="spinner w-8 h-8 hidden"></div>
                 </div>
                 
                 <div class="grid grid-cols-2 gap-2">
@@ -21,12 +35,12 @@
                     <input type="file" id="csv-file-input" class="hidden" accept=".csv">
                     <button id="export-excel-btn" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-3 rounded-lg text-xs md:text-sm transition-colors duration-300"><i class="fas fa-file-excel mr-1"></i>Export to Excel</button>
                 </div>
-                 <button id="delete-all-btn" class="mt-2 w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-3 rounded-lg text-sm transition-colors duration-300">
+                <button id="delete-all-btn" class="mt-2 w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-3 rounded-lg text-sm transition-colors duration-300">
                     <i class="fas fa-trash-alt mr-1"></i>Delete All Accounts
                 </button>
             </div>
             <div class="p-4 border-b border-gray-200 flex flex-col gap-2">
-                 <div class="relative flex-grow">
+                <div class="relative flex-grow">
                     <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
                     <input type="search" id="search-accounts" placeholder="Search by name..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg">
                 </div>
@@ -62,8 +76,8 @@
                     <h3 class="text-xl font-bold">Select an Account</h3>
                     <p class="mt-2">Choose an account from the list to view its details, history, and add new findings.</p>
                     <div class="mt-4 text-xs">
-                         <p class="font-bold">App ID: <span id="app-id-display" class="font-normal"></span></p>
-                         <p class="font-bold">User ID: <span id="user-id-display" class="font-normal"></span></p>
+                        <p class="font-bold">App ID: <span id="app-id-display" class="font-normal"></span></p>
+                        <p class="font-bold">User ID: <span id="user-id-display" class="font-normal"></span></p>
                     </div>
                 </div>
                 <!-- Content shown when an account is selected -->
@@ -177,7 +191,8 @@
     let statusFilter = 'all';
     let ownerFilter = 'all';
     let historySearchTerm = '';
-    let currentUserId = "CzlyGQxvtRMESP7HSj1DLGITT7d2"; // Hardcoded user ID for testing
+    // FIX: Set initial currentUserId to null, it will be set by onAuthStateChanged
+    let currentUserId = null; 
     let isAuthReady = false;
     
     // WARNING: Storing API keys directly in client-side code is a security risk.
@@ -378,11 +393,11 @@
                 const tagClass = tagColors[comment.tag] || 'bg-gray-200 text-gray-800';
 
                 item.innerHTML = `
-                     <div class="flex justify-between items-start mb-2">
+                    <div class="flex justify-between items-start mb-2">
                         <span class="tag text-xs font-semibold px-2 py-1 rounded-full ${tagClass}">${comment.tag}</span>
                         <div class="text-xs text-gray-400 flex flex-col items-end">
-                          <span>CSM Cadence: <span class="text-gray-800 font-semibold">${comment.cadence}</span></span>
-                          <span>${timestamp}</span>
+                            <span>CSM Cadence: <span class="text-gray-800 font-semibold">${comment.cadence}</span></span>
+                            <span>${timestamp}</span>
                         </div>
                     </div>
                     <p class="text-gray-800 whitespace-pre-wrap">${comment.text}</p>
@@ -415,15 +430,16 @@
                     console.log(`Signed in with user ID: ${currentUserId}`);
                     userIdDisplay.textContent = currentUserId;
                     appIdDisplay.textContent = appId;
+                    // Start listening to data ONLY when user is confirmed
                     startRealtimeListener();
                 } else {
                     isAuthReady = true;
-                    console.log("No user signed in. Signing in anonymously.");
+                    console.log("No user signed in. Attempting sign-in.");
                     const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
                     if (initialAuthToken) {
-                        await signInWithCustomToken(auth, initialAuthToken);
+                        await signInWithCustomToken(auth, initialAuthToken).catch(e => console.error("Custom token sign-in failed:", e));
                     } else {
-                        await signInAnonymously(auth);
+                        await signInAnonymously(auth).catch(e => console.error("Anonymous sign-in failed:", e));
                     }
                 }
             });
@@ -434,14 +450,16 @@
     };
 
     const startRealtimeListener = () => {
-        if (!isAuthReady) return;
+        // FIX: Ensure we have a currentUserId before querying
+        if (!currentUserId || !isAuthReady) return; 
+
         showLoading();
-        const collectionPath = `artifacts/${appId}/users/CzlyGQxvtRMESP7HSj1DLGITT7d2/accounts`;
+        // FIX: Use the dynamic currentUserId in the collection path
+        const collectionPath = `artifacts/${appId}/users/${currentUserId}/accounts`;
         
         // Log the exact path being queried for debugging purposes
         console.log(`Querying collection: ${collectionPath}`);
         
-        // Fix: Create the query object and assign it to a variable 'q'
         const q = collection(db, collectionPath);
 
         onSnapshot(q, (snapshot) => {
@@ -460,7 +478,11 @@
             render();
         }, (error) => {
             console.error("Failed to fetch accounts:", error);
-            showModal('Error', "Failed to load accounts. Please try refreshing the page.", false);
+            // Show a specific error about the permission issue if we get it
+            const errorMessage = error.code === 'permission-denied' ? 
+                                 'Permission denied. Ensure your authentication state and security rules match the requested path.' : 
+                                 "Failed to load accounts. Please try refreshing the page.";
+            showModal('Error', errorMessage, false);
             hideLoading();
         });
     };
@@ -477,10 +499,11 @@
     };
 
     const handleStatusChange = async (e) => {
-        if (!selectedAccount) return;
+        if (!selectedAccount || !currentUserId) return; // Add currentUserId check
         const newStatus = e.target.value;
         updateStatusSelectColor(newStatus);
-        const accountRef = doc(db, `artifacts/${appId}/users/CzlyGQxvtRMESP7HSj1DLGITT7d2/accounts`, selectedAccount.id);
+        // FIX: Use dynamic currentUserId in the doc path
+        const accountRef = doc(db, `artifacts/${appId}/users/${currentUserId}/accounts`, selectedAccount.id);
         try {
             await updateDoc(accountRef, { status: newStatus });
         } catch (error) {
@@ -491,7 +514,7 @@
 
     const handleAddComment = async (e) => {
         e.preventDefault();
-        if (!selectedAccount) return;
+        if (!selectedAccount || !currentUserId) return; // Add currentUserId check
         
         const textarea = document.getElementById('comment-textarea');
         const tagSelect = document.getElementById('comment-tag-select');
@@ -512,7 +535,8 @@
             cadence: cadence
         };
 
-        const accountRef = doc(db, `artifacts/${appId}/users/CzlyGQxvtRMESP7HSj1DLGITT7d2/accounts`, selectedAccount.id);
+        // FIX: Use dynamic currentUserId in the doc path
+        const accountRef = doc(db, `artifacts/${appId}/users/${currentUserId}/accounts`, selectedAccount.id);
 
         try {
             await updateDoc(accountRef, {
@@ -573,12 +597,12 @@
     const handleImportCSV = async (e) => {
         const file = e.target.files[0];
         if (!file) {
-             showModal('Warning', "No file selected.", false);
-             return;
+            showModal('Warning', "No file selected.", false);
+            return;
         }
 
-        if (!isAuthReady) {
-            showModal('Warning', "Authentication is not ready. Please wait a moment and try again.", false);
+        if (!currentUserId) { // Check for authenticated user ID
+            showModal('Warning', "Authentication is not ready. Please wait for sign-in to complete and try again.", false);
             return;
         }
 
@@ -605,7 +629,8 @@
                 return;
             }
 
-            const accountsRef = collection(db, `artifacts/${appId}/users/CzlyGQxvtRMESP7HSj1DLGITT7d2/accounts`);
+            // FIX: Use dynamic currentUserId in the collection path
+            const accountsRef = collection(db, `artifacts/${appId}/users/${currentUserId}/accounts`);
             const totalRows = rows.length - 1;
             let currentProgress = 0;
 
@@ -647,14 +672,14 @@
     };
     
     const handleExportToExcel = async () => {
-         if (accounts.length === 0) {
-             showModal('Warning', 'No accounts to export.', false);
-             return;
-         }
-         
-         showLoading();
-         const headers = ['Name', 'Owner', 'Status', 'Active Bookings (converted)', 'Interaction History'];
-         const rows = accounts.map(acc => {
+        if (accounts.length === 0) {
+            showModal('Warning', 'No accounts to export.', false);
+            return;
+        }
+        
+        showLoading();
+        const headers = ['Name', 'Owner', 'Status', 'Active Bookings (converted)', 'Interaction History'];
+        const rows = accounts.map(acc => {
             const formattedComments = (acc.comments || []).map(comment => {
                 const timestamp = new Date(comment.timestamp).toLocaleString();
                 return `Date = ${timestamp}\nTag = ${comment.tag}\nCSM Cadence = ${comment.cadence}\nComment = ${comment.text}`;
@@ -669,45 +694,49 @@
                 acc.bookings || '',
                 escapeCsv(formattedComments)
             ].join(',');
-         });
-         
-         const csvContent = [headers.join(','), ...rows].join('\n');
-         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-         
-         const link = document.createElement('a');
-         const url = URL.createObjectURL(blob);
-         link.setAttribute('href', url);
-         const today = new Date().toISOString().slice(0, 10);
-         link.setAttribute('download', `account_tracker_${today}.csv`); // Use .csv for Excel compatibility
-         link.style.visibility = 'hidden';
-         document.body.appendChild(link);
-         link.click();
-         document.body.removeChild(link);
-         hideLoading();
+        });
+        
+        const csvContent = [headers.join(','), ...rows].join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        const today = new Date().toISOString().slice(0, 10);
+        link.setAttribute('download', `account_tracker_${today}.csv`); // Use .csv for Excel compatibility
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        hideLoading();
     };
 
     const handleDeleteAll = async () => {
+        if (!currentUserId) return; // Add currentUserId check
+
         showModal('Confirm Deletion', 'Are you sure you want to delete all accounts? This action cannot be undone.', true, async () => {
-             showLoading();
-             try {
-                const accountsRef = collection(db, `artifacts/${appId}/users/CzlyGQxvtRMESP7HSj1DLGITT7d2/accounts`);
+            showLoading();
+            try {
+                // FIX: Use dynamic currentUserId in the collection path
+                const accountsRef = collection(db, `artifacts/${appId}/users/${currentUserId}/accounts`);
                 const q = query(accountsRef);
                 const querySnapshot = await getDocs(q);
                 const deletePromises = [];
                 querySnapshot.forEach((d) => {
-                    deletePromises.push(deleteDoc(doc(db, `artifacts/${appId}/users/CzlyGQxvtRMESP7HSj1DLGITT7d2/accounts`, d.id)));
+                    // FIX: Use dynamic currentUserId in the doc path
+                    deletePromises.push(deleteDoc(doc(db, `artifacts/${appId}/users/${currentUserId}/accounts`, d.id)));
                 });
                 await Promise.all(deletePromises);
                 showModal('Success', 'All accounts have been successfully deleted from the database.', false);
-             } catch (error) {
-                 console.error("Error deleting all accounts:", error);
-                 showModal('Error', "Failed to delete accounts. Please try again.", false);
-             } finally {
-                 hideLoading();
-             }
+            } catch (error) {
+                console.error("Error deleting all accounts:", error);
+                showModal('Error', "Failed to delete accounts. Please try again.", false);
+            } finally {
+                hideLoading();
+            }
         });
-     };
-     
+    };
+    
     // --- AI SUMMARY FUNCTION ---
     const handleSummarizeHistory = async () => {
         if (!selectedAccount) {
@@ -741,6 +770,8 @@
         const userPrompt = `Account Name: ${selectedAccount.name}\n\nInteraction History:\n${commentText}`;
 
         try {
+            // Note: Exponential backoff logic for retry is typically implemented here, 
+            // but omitted for conciseness unless a specific error handling pattern is requested.
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${GOOGLE_AI_API_KEY}`, {
                 method: 'POST',
                 headers: {
@@ -799,4 +830,5 @@
         initializeFirebase();
     });
 </script>
-</body></html>
+</body>
+</html>
