@@ -194,6 +194,9 @@
     // FIX: Set initial currentUserId to null, it will be set by onAuthStateChanged
     let currentUserId = null; 
     let isAuthReady = false;
+
+    // The old user ID where your data currently resides.
+    const FIXED_USER_ID = "CzlyGQxvtRMESP7HSj1DLGITT7d2"; 
     
     // WARNING: Storing API keys directly in client-side code is a security risk.
     // For production, use a server-side proxy to protect your key.
@@ -425,21 +428,44 @@
             
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
+                    // Scenario 1: User signed in successfully (using custom token or previously)
                     currentUserId = user.uid;
                     isAuthReady = true;
                     console.log(`Signed in with user ID: ${currentUserId}`);
                     userIdDisplay.textContent = currentUserId;
                     appIdDisplay.textContent = appId;
-                    // Start listening to data ONLY when user is confirmed
                     startRealtimeListener();
                 } else {
+                    // Scenario 2: No user yet. Attempt sign-in.
                     isAuthReady = true;
                     console.log("No user signed in. Attempting sign-in.");
+                    
                     const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+                    
                     if (initialAuthToken) {
+                        // Use the stable custom token provided by the environment
                         await signInWithCustomToken(auth, initialAuthToken).catch(e => console.error("Custom token sign-in failed:", e));
                     } else {
-                        await signInAnonymously(auth).catch(e => console.error("Anonymous sign-in failed:", e));
+                         // FIX: Fallback to the old, hardcoded user ID if anonymous sign-in is used
+                         // This is temporary to retrieve data from the old path.
+                        
+                        // We must sign in with *some* ID to satisfy security rules.
+                        // Sign in anonymously first. The listener will be called again.
+                        const anonUserCredential = await signInAnonymously(auth).catch(e => console.error("Anonymous sign-in failed:", e));
+
+                        // After anonymous sign-in, we override the currentUserId with the fixed one
+                        // for data fetching, but the authentication is still the anonymous user.
+                        // This allows us to read the data if the Firestore rule is set to the FIXED_USER_ID.
+                        currentUserId = anonUserCredential ? FIXED_USER_ID : null;
+
+                        // Now the listener will fire again with the anonymous user ID, 
+                        // but startRealtimeListener will use FIXED_USER_ID to fetch data.
+                        // We call startRealtimeListener here just in case the listener was skipped.
+                        if (currentUserId === FIXED_USER_ID) {
+                            console.warn(`WARN: Using fixed user ID: ${FIXED_USER_ID} for data fetching.`);
+                            userIdDisplay.textContent = `${FIXED_USER_ID} (Fixed)`;
+                            startRealtimeListener();
+                        }
                     }
                 }
             });
@@ -450,14 +476,16 @@
     };
 
     const startRealtimeListener = () => {
-        // FIX: Ensure we have a currentUserId before querying
-        if (!currentUserId || !isAuthReady) return; 
+        // We now intentionally use the FIXED_USER_ID if it was set, 
+        // to retrieve the old data under the old path.
+        const effectiveUserId = currentUserId === FIXED_USER_ID ? FIXED_USER_ID : currentUserId;
+
+        if (!effectiveUserId || !isAuthReady) return; 
 
         showLoading();
-        // FIX: Use the dynamic currentUserId in the collection path
-        const collectionPath = `artifacts/${appId}/users/${currentUserId}/accounts`;
+        // Use the effective user ID in the collection path
+        const collectionPath = `artifacts/${appId}/users/${effectiveUserId}/accounts`;
         
-        // Log the exact path being queried for debugging purposes
         console.log(`Querying collection: ${collectionPath}`);
         
         const q = collection(db, collectionPath);
@@ -468,7 +496,6 @@
                 ...doc.data()
             }));
             
-            // Log the number of documents received to confirm data is coming in
             console.log(`Received ${accounts.length} documents.`);
 
             if (selectedAccount) {
@@ -487,7 +514,19 @@
         });
     };
 
-    // --- EVENT HANDLERS ---
+    // --- EVENT HANDLERS (UPDATED TO USE EFFECTIVE USER ID) ---
+    const getAccountDocRef = (accountId) => {
+        const effectiveUserId = currentUserId === FIXED_USER_ID ? FIXED_USER_ID : currentUserId;
+        if (!effectiveUserId) throw new Error("User ID is missing.");
+        return doc(db, `artifacts/${appId}/users/${effectiveUserId}/accounts`, accountId);
+    };
+
+    const getAccountsCollectionRef = () => {
+        const effectiveUserId = currentUserId === FIXED_USER_ID ? FIXED_USER_ID : currentUserId;
+        if (!effectiveUserId) throw new Error("User ID is missing.");
+        return collection(db, `artifacts/${appId}/users/${effectiveUserId}/accounts`);
+    };
+
     const handleSelectAccount = (e) => {
         const accountItem = e.target.closest('[data-id]');
         if (accountItem) {
@@ -499,13 +538,12 @@
     };
 
     const handleStatusChange = async (e) => {
-        if (!selectedAccount || !currentUserId) return; // Add currentUserId check
+        if (!selectedAccount || !currentUserId) return;
         const newStatus = e.target.value;
         updateStatusSelectColor(newStatus);
-        // FIX: Use dynamic currentUserId in the doc path
-        const accountRef = doc(db, `artifacts/${appId}/users/${currentUserId}/accounts`, selectedAccount.id);
+        
         try {
-            await updateDoc(accountRef, { status: newStatus });
+            await updateDoc(getAccountDocRef(selectedAccount.id), { status: newStatus });
         } catch (error) {
             console.error("Error updating status:", error);
             showModal('Error', "Failed to update account status. Please try again.", false);
@@ -514,7 +552,7 @@
 
     const handleAddComment = async (e) => {
         e.preventDefault();
-        if (!selectedAccount || !currentUserId) return; // Add currentUserId check
+        if (!selectedAccount || !currentUserId) return; 
         
         const textarea = document.getElementById('comment-textarea');
         const tagSelect = document.getElementById('comment-tag-select');
@@ -535,11 +573,8 @@
             cadence: cadence
         };
 
-        // FIX: Use dynamic currentUserId in the doc path
-        const accountRef = doc(db, `artifacts/${appId}/users/${currentUserId}/accounts`, selectedAccount.id);
-
         try {
-            await updateDoc(accountRef, {
+            await updateDoc(getAccountDocRef(selectedAccount.id), {
                 comments: [...(selectedAccount.comments || []), newComment]
             });
             textarea.value = '';
@@ -601,7 +636,7 @@
             return;
         }
 
-        if (!currentUserId) { // Check for authenticated user ID
+        if (!currentUserId) {
             showModal('Warning', "Authentication is not ready. Please wait for sign-in to complete and try again.", false);
             return;
         }
@@ -629,8 +664,7 @@
                 return;
             }
 
-            // FIX: Use dynamic currentUserId in the collection path
-            const accountsRef = collection(db, `artifacts/${appId}/users/${currentUserId}/accounts`);
+            const accountsRef = getAccountsCollectionRef(); // Use fixed ref
             const totalRows = rows.length - 1;
             let currentProgress = 0;
 
@@ -712,19 +746,17 @@
     };
 
     const handleDeleteAll = async () => {
-        if (!currentUserId) return; // Add currentUserId check
+        if (!currentUserId) return;
 
         showModal('Confirm Deletion', 'Are you sure you want to delete all accounts? This action cannot be undone.', true, async () => {
             showLoading();
             try {
-                // FIX: Use dynamic currentUserId in the collection path
-                const accountsRef = collection(db, `artifacts/${appId}/users/${currentUserId}/accounts`);
+                const accountsRef = getAccountsCollectionRef(); // Use fixed ref
                 const q = query(accountsRef);
                 const querySnapshot = await getDocs(q);
                 const deletePromises = [];
                 querySnapshot.forEach((d) => {
-                    // FIX: Use dynamic currentUserId in the doc path
-                    deletePromises.push(deleteDoc(doc(db, `artifacts/${appId}/users/${currentUserId}/accounts`, d.id)));
+                    deletePromises.push(deleteDoc(getAccountDocRef(d.id))); // Use fixed ref
                 });
                 await Promise.all(deletePromises);
                 showModal('Success', 'All accounts have been successfully deleted from the database.', false);
