@@ -28,6 +28,15 @@
             visibility: visible;
             opacity: 1;
         }
+        .gemini-btn-spinner {
+            display: none;
+        }
+        .gemini-btn.loading .gemini-btn-spinner {
+            display: inline-block;
+        }
+        .gemini-btn.loading .gemini-btn-text {
+            display: none;
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
@@ -43,32 +52,11 @@
         <!-- Header -->
         <header class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm mb-6">
             <h1 class="text-2xl font-bold text-gray-900">Health & Account Tracker</h1>
-            <button id="logout-btn" class="hidden bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition">Logout</button>
+            <p id="user-id-display" class="text-xs text-gray-500"></p>
         </header>
 
-        <!-- Auth Section -->
-        <div id="auth-section" class="bg-white p-8 rounded-xl shadow-md">
-            <div class="max-w-md mx-auto">
-                <h2 class="text-2xl font-bold text-center mb-6" id="auth-title">Login</h2>
-                <form id="auth-form">
-                    <div class="mb-4">
-                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                        <input type="email" id="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                    </div>
-                    <div class="mb-6">
-                        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                        <input type="password" id="password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                    </div>
-                    <button type="submit" id="auth-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition">Login</button>
-                </form>
-                <p class="text-center text-sm text-gray-600 mt-4">
-                    <a href="#" id="toggle-auth-mode" class="text-blue-600 hover:underline">Don't have an account? Sign Up</a>
-                </p>
-            </div>
-        </div>
-
         <!-- Dashboard Section -->
-        <main id="dashboard-section" class="hidden">
+        <main id="dashboard-section">
             
             <!-- Data Entry Forms -->
             <div class="grid md:grid-cols-2 gap-6 mb-6">
@@ -85,7 +73,13 @@
                         </div>
                          <div class="mb-4">
                             <label for="tr-category" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                            <input type="text" id="tr-category" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., Food, Salary" required>
+                            <div class="flex items-center space-x-2">
+                                <input type="text" id="tr-category" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., Coffee with client" required>
+                                <button type="button" id="suggest-category-btn" class="gemini-btn p-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition" title="Suggest Category with AI">
+                                    <span class="gemini-btn-text">✨</span>
+                                    <div class="gemini-btn-spinner animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
+                                </button>
+                            </div>
                         </div>
                         <div class="mb-4">
                             <label for="tr-amount" class="block text-sm font-medium text-gray-700 mb-1">Amount</label>
@@ -118,15 +112,26 @@
                 </div>
             </div>
 
-            <!-- AI Summary Section -->
-            <div class="bg-white p-6 rounded-xl shadow-sm mb-6">
-                <h3 class="text-lg font-bold mb-4">Your AI-Powered Summary</h3>
-                <button id="get-summary-btn" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition mb-4">Generate My Weekly Summary</button>
-                <div id="summary-output" class="p-4 bg-gray-50 rounded-lg min-h-[100px] text-gray-700 whitespace-pre-wrap">Click the button to get your personalized summary.</div>
+            <!-- AI Insights Sections -->
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- AI Summary Section -->
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <h3 class="text-lg font-bold mb-4">Your AI-Powered Summary</h3>
+                    <button id="get-summary-btn" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition mb-4">✨ Generate Retrospective Summary</button>
+                    <div id="summary-output" class="p-4 bg-gray-50 rounded-lg min-h-[150px] text-gray-700 whitespace-pre-wrap">Summarize your past week.</div>
+                </div>
+
+                <!-- Proactive AI Insights Section -->
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <h3 class="text-lg font-bold mb-4">✨ Proactive AI Insights</h3>
+                    <button id="get-proactive-tips-btn" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg transition mb-4">✨ Generate Proactive Tips</button>
+                    <div id="proactive-tips-output" class="p-4 bg-gray-50 rounded-lg min-h-[150px] text-gray-700 whitespace-pre-wrap">Get actionable tips for the week ahead.</div>
+                </div>
             </div>
 
+
             <!-- Data Display -->
-            <div class="grid md:grid-cols-2 gap-6">
+            <div class="grid md:grid-cols-2 gap-6 mt-6">
                 <!-- Transactions List -->
                 <div class="bg-white p-6 rounded-xl shadow-sm">
                     <h3 class="text-lg font-bold mb-4">Recent Transactions</h3>
@@ -150,12 +155,9 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { 
             getAuth, 
-            createUserWithEmailAndPassword, 
-            signInWithEmailAndPassword, 
-            signOut, 
+            signInAnonymously,
             onAuthStateChanged,
-            signInWithCustomToken,
-            signInAnonymously
+            signInWithCustomToken
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { 
             getFirestore, 
@@ -166,7 +168,8 @@
             onSnapshot,
             orderBy,
             limit,
-            serverTimestamp
+            serverTimestamp,
+            getDocs
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- Firebase Configuration ---
@@ -186,30 +189,26 @@
         const db = getFirestore(app);
 
         // --- DOM Elements ---
-        const authSection = document.getElementById('auth-section');
-        const dashboardSection = document.getElementById('dashboard-section');
-        const logoutBtn = document.getElementById('logout-btn');
-        const authForm = document.getElementById('auth-form');
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-        const authTitle = document.getElementById('auth-title');
-        const authBtn = document.getElementById('auth-btn');
-        const toggleAuthModeLink = document.getElementById('toggle-auth-mode');
-        
+        const userIdDisplay = document.getElementById('user-id-display');
         const transactionForm = document.getElementById('transaction-form');
         const healthLogForm = document.getElementById('health-log-form');
         
+        const trCategoryInput = document.getElementById('tr-category');
+        const suggestCategoryBtn = document.getElementById('suggest-category-btn');
+
         const transactionsList = document.getElementById('transactions-list');
         const healthLogsList = document.getElementById('health-logs-list');
 
         const getSummaryBtn = document.getElementById('get-summary-btn');
         const summaryOutput = document.getElementById('summary-output');
+        
+        const getProactiveTipsBtn = document.getElementById('get-proactive-tips-btn');
+        const proactiveTipsOutput = document.getElementById('proactive-tips-output');
 
         const toast = document.getElementById('toast');
         const toastMessage = document.getElementById('toast-message');
 
         // --- App State ---
-        let isLoginMode = true;
         let currentUser = null;
         let unsubTransactions = null;
         let unsubHealthLogs = null;
@@ -223,40 +222,19 @@
             }, 3000);
         }
         
-        // --- UI Logic ---
-        function toggleAuthUI() {
-            isLoginMode = !isLoginMode;
-            authTitle.textContent = isLoginMode ? 'Login' : 'Sign Up';
-            authBtn.textContent = isLoginMode ? 'Login' : 'Sign Up';
-            toggleAuthModeLink.innerHTML = isLoginMode 
-                ? "Don't have an account? Sign Up" 
-                : 'Already have an account? Login';
-        }
-
-        function updateUIForAuthState(user) {
+        // --- Authentication Logic ---
+        onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
-                authSection.classList.add('hidden');
-                dashboardSection.classList.remove('hidden');
-                logoutBtn.classList.remove('hidden');
-                // Start listening to data
+                userIdDisplay.textContent = `Session ID: ${user.uid.substring(0, 8)}...`;
                 listenToData();
             } else {
                 currentUser = null;
-                authSection.classList.remove('hidden');
-                dashboardSection.classList.add('hidden');
-                logoutBtn.classList.add('hidden');
-                // Stop listening to data
                 if (unsubTransactions) unsubTransactions();
                 if (unsubHealthLogs) unsubHealthLogs();
                 transactionsList.innerHTML = '';
                 healthLogsList.innerHTML = '';
             }
-        }
-        
-        // --- Authentication Logic ---
-        onAuthStateChanged(auth, (user) => {
-            updateUIForAuthState(user);
         });
 
         const initialAuth = async () => {
@@ -268,57 +246,21 @@
                     await signInAnonymously(auth);
                 }
             } else {
-                await signInAnonymously(auth);
+                signInAnonymously(auth).catch(error => {
+                    console.error("Anonymous sign-in failed:", error);
+                    showToast("Could not start a session. Please refresh.");
+                });
             }
         };
-        initialAuth();
-
-
-        authForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = emailInput.value;
-            const password = passwordInput.value;
-
-            try {
-                if (isLoginMode) {
-                    await signInWithEmailAndPassword(auth, email, password);
-                } else {
-                    await createUserWithEmailAndPassword(auth, email, password);
-                }
-            } catch (error) {
-                console.error("Auth Error:", error);
-                showToast(error.message);
-            }
-        });
-
-        toggleAuthModeLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            toggleAuthUI();
-        });
-
-        logoutBtn.addEventListener('click', async () => {
-            try {
-                await signOut(auth);
-            } catch (error) {
-                console.error("Logout Error:", error);
-                showToast(error.message);
-            }
-        });
         
         // --- Firestore Logic ---
         function listenToData() {
             if (!currentUser) return;
-
-            // Unsubscribe from previous listeners if they exist
             if (unsubTransactions) unsubTransactions();
             if (unsubHealthLogs) unsubHealthLogs();
-
-            // Transactions listener
-            const transQuery = query(
-                collection(db, `artifacts/${appId}/users/${currentUser.uid}/transactions`), 
-                orderBy("timestamp", "desc"), 
-                limit(10)
-            );
+            
+            const userDbPath = `artifacts/${appId}/users/${currentUser.uid}`;
+            const transQuery = query(collection(db, `${userDbPath}/transactions`), orderBy("timestamp", "desc"), limit(10));
             unsubTransactions = onSnapshot(transQuery, (snapshot) => {
                 let html = '';
                 if (snapshot.empty) {
@@ -336,22 +278,13 @@
                                     <p class="text-sm text-gray-500">${date}</p>
                                 </div>
                                 <p class="font-bold ${amountColor}">${sign}$${data.amount.toFixed(2)}</p>
-                            </div>
-                        `;
+                            </div>`;
                     });
                 }
                 transactionsList.innerHTML = html;
-            }, (error) => {
-                console.error("Transaction listener error:", error);
-                showToast("Could not fetch transactions.");
-            });
+            }, (error) => { console.error("Transaction listener error:", error); showToast("Could not fetch transactions."); });
 
-            // Health Logs listener
-            const healthQuery = query(
-                collection(db, `artifacts/${appId}/users/${currentUser.uid}/health_logs`), 
-                orderBy("timestamp", "desc"), 
-                limit(10)
-            );
+            const healthQuery = query(collection(db, `${userDbPath}/health_logs`), orderBy("timestamp", "desc"), limit(10));
             unsubHealthLogs = onSnapshot(healthQuery, (snapshot) => {
                 let html = '';
                 if (snapshot.empty) {
@@ -367,15 +300,11 @@
                                     <p class="text-sm text-gray-500">${date}</p>
                                 </div>
                                 <p class="font-bold text-blue-600">${data.sleepHours} hours sleep</p>
-                            </div>
-                        `;
+                            </div>`;
                     });
                 }
                 healthLogsList.innerHTML = html;
-            }, (error) => {
-                console.error("Health log listener error:", error);
-                showToast("Could not fetch health logs.");
-            });
+            }, (error) => { console.error("Health log listener error:", error); showToast("Could not fetch health logs."); });
         }
         
         transactionForm.addEventListener('submit', async (e) => {
@@ -383,21 +312,13 @@
             if(!currentUser) return;
             
             const type = document.getElementById('tr-type').value;
-            const category = document.getElementById('tr-category').value;
+            const category = trCategoryInput.value;
             const amount = parseFloat(document.getElementById('tr-amount').value);
 
             try {
-                await addDoc(collection(db, `artifacts/${appId}/users/${currentUser.uid}/transactions`), {
-                    type,
-                    category,
-                    amount,
-                    timestamp: serverTimestamp()
-                });
+                await addDoc(collection(db, `artifacts/${appId}/users/${currentUser.uid}/transactions`), { type, category, amount, timestamp: serverTimestamp() });
                 transactionForm.reset();
-            } catch (error) {
-                console.error("Error adding transaction:", error);
-                showToast("Failed to add transaction.");
-            }
+            } catch (error) { console.error("Error adding transaction:", error); showToast("Failed to add transaction."); }
         });
 
         healthLogForm.addEventListener('submit', async (e) => {
@@ -408,34 +329,23 @@
             const mood = document.getElementById('hl-mood').value;
 
             try {
-                await addDoc(collection(db, `artifacts/${appId}/users/${currentUser.uid}/health_logs`), {
-                    sleepHours,
-                    mood,
-                    timestamp: serverTimestamp()
-                });
+                await addDoc(collection(db, `artifacts/${appId}/users/${currentUser.uid}/health_logs`), { sleepHours, mood, timestamp: serverTimestamp() });
                 healthLogForm.reset();
-            } catch(error) {
-                console.error("Error adding health log:", error);
-                showToast("Failed to add health log.");
-            }
+            } catch(error) { console.error("Error adding health log:", error); showToast("Failed to add health log."); }
         });
 
         // --- Gemini API Logic ---
-        async function getSummaryFromAI() {
-            if (!currentUser) return;
 
-            getSummaryBtn.disabled = true;
-            getSummaryBtn.textContent = 'Generating...';
-            summaryOutput.innerHTML = '<div class="flex justify-center items-center"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-700"></div></div>';
-
+        // Helper function to fetch recent data for AI analysis
+        async function fetchRecentData() {
+            if (!currentUser) return { transactions: [], healthLogs: [] };
+            const userDbPath = `artifacts/${appId}/users/${currentUser.uid}`;
             const transactions = [];
             const healthLogs = [];
 
-            // Fetch latest data for summary
-            const transQuery = query(collection(db, `artifacts/${appId}/users/${currentUser.uid}/transactions`), orderBy("timestamp", "desc"), limit(20));
-            const healthQuery = query(collection(db, `artifacts/${appId}/users/${currentUser.uid}/health_logs`), orderBy("timestamp", "desc"), limit(20));
+            const transQuery = query(collection(db, `${userDbPath}/transactions`), orderBy("timestamp", "desc"), limit(20));
+            const healthQuery = query(collection(db, `${userDbPath}/health_logs`), orderBy("timestamp", "desc"), limit(20));
             
-            // This is a simplified fetch; a real app might need more robust data gathering
             const transSnapshot = await getDocs(transQuery);
             transSnapshot.forEach(doc => {
                 const data = doc.data();
@@ -448,67 +358,126 @@
                 healthLogs.push(`- On ${data.timestamp.toDate().toLocaleDateString()}, slept ${data.sleepHours} hours and felt ${data.mood}`);
             });
 
+            return { transactions, healthLogs };
+        }
+
+        async function callGeminiAPI(prompt) {
+            const apiKey = "AIzaSyDVYAZClbgwBIDVGn63dV2wf61p4_dWi1Y"; 
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`API call failed with status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            return result.candidates?.[0]?.content?.parts?.[0]?.text;
+        }
+
+        // Feature 1: Get Retrospective Summary
+        async function getSummaryFromAI() {
+            getSummaryBtn.disabled = true;
+            getSummaryBtn.textContent = 'Generating...';
+            summaryOutput.innerHTML = '<div class="flex justify-center items-center"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-700"></div></div>';
+
+            const { transactions, healthLogs } = await fetchRecentData();
             if (transactions.length === 0 && healthLogs.length === 0) {
-                 summaryOutput.textContent = "Not enough data to generate a summary. Please add some transactions and health logs.";
+                 summaryOutput.textContent = "Not enough data to generate a summary.";
                  getSummaryBtn.disabled = false;
-                 getSummaryBtn.textContent = 'Generate My Weekly Summary';
+                 getSummaryBtn.textContent = '✨ Generate Retrospective Summary';
                  return;
             }
 
-            const prompt = `
-                Act as a personal financial and health analyst.
-                Based on the following recent data, provide a concise, insightful, and supportive summary (3-4 sentences) of my overall well-being.
-                Identify any potential connections between my spending and my health. For example, does spending more on "takeout" correlate with less sleep?
-                Do not just list the data; synthesize it into a narrative.
+            const prompt = `Act as a personal financial and health analyst. Based on the following recent data, provide a concise, insightful, and supportive summary (3-4 sentences) of my overall well-being. Identify any potential connections between my spending and my health. Synthesize the data into a narrative.
 
-                My Recent Transactions:
-                ${transactions.join('\n')}
-
-                My Recent Health Logs:
-                ${healthLogs.join('\n')}
-
-                Summary:
-            `;
-
-            const apiKey = ""; 
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+My Recent Transactions:\n${transactions.join('\n')}\n\nMy Recent Health Logs:\n${healthLogs.join('\n')}\n\nSummary:`;
             
             try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: prompt }] }],
-                    }),
-                });
-
-                if (!response.ok) {
-                    throw new Error(`API call failed with status: ${response.status}`);
-                }
-
-                const result = await response.json();
-                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
-
-                if (text) {
-                    summaryOutput.textContent = text;
-                } else {
-                    summaryOutput.textContent = 'Could not generate a summary at this time. The model returned an empty response.';
-                }
-
+                const text = await callGeminiAPI(prompt);
+                summaryOutput.textContent = text || 'Could not generate a summary. The model returned an empty response.';
             } catch (error) {
-                console.error("Gemini API Error:", error);
-                summaryOutput.textContent = 'An error occurred while generating your summary. Please try again later.';
+                console.error("Gemini Summary Error:", error);
+                summaryOutput.textContent = 'An error occurred while generating your summary.';
                 showToast("Error connecting to AI service.");
             } finally {
                 getSummaryBtn.disabled = false;
-                getSummaryBtn.textContent = 'Generate My Weekly Summary';
+                getSummaryBtn.textContent = '✨ Generate Retrospective Summary';
+            }
+        }
+
+        // Feature 2: Get Proactive Tips
+        async function getProactiveTips() {
+            getProactiveTipsBtn.disabled = true;
+            getProactiveTipsBtn.textContent = 'Generating...';
+            proactiveTipsOutput.innerHTML = '<div class="flex justify-center items-center"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-700"></div></div>';
+
+            const { transactions, healthLogs } = await fetchRecentData();
+            if (transactions.length === 0 && healthLogs.length === 0) {
+                 proactiveTipsOutput.textContent = "Not enough data to generate tips.";
+                 getProactiveTipsBtn.disabled = false;
+                 getProactiveTipsBtn.textContent = '✨ Generate Proactive Tips';
+                 return;
+            }
+
+            const prompt = `Act as a supportive personal coach. Based on my recent financial and health data, provide 2-3 encouraging and actionable tips for the upcoming week to improve my overall well-being. The tips should be specific and forward-looking. Format the output as a bulleted list.
+
+My Recent Transactions:\n${transactions.join('\n')}\n\nMy Recent Health Logs:\n${healthLogs.join('\n')}\n\nActionable Tips:`;
+
+            try {
+                const text = await callGeminiAPI(prompt);
+                proactiveTipsOutput.textContent = text || 'Could not generate tips. The model returned an empty response.';
+            } catch (error) {
+                console.error("Gemini Tips Error:", error);
+                proactiveTipsOutput.textContent = 'An error occurred while generating your tips.';
+                showToast("Error connecting to AI service.");
+            } finally {
+                getProactiveTipsBtn.disabled = false;
+                getProactiveTipsBtn.textContent = '✨ Generate Proactive Tips';
             }
         }
         
-        getSummaryBtn.addEventListener('click', getSummaryFromAI);
+        // Feature 3: Suggest Transaction Category
+        async function suggestCategory() {
+            const userInput = trCategoryInput.value;
+            if (!userInput.trim()) {
+                showToast("Please enter a description first.");
+                return;
+            }
 
+            suggestCategoryBtn.classList.add('loading');
+            suggestCategoryBtn.disabled = true;
+
+            const prompt = `Based on the transaction description "${userInput}", suggest a single, concise expense category. Examples: 'Groceries', 'Utilities', 'Entertainment', 'Transport', 'Healthcare', 'Food & Drink'. Respond with only the category name.`;
+
+            try {
+                const text = await callGeminiAPI(prompt);
+                if (text) {
+                    trCategoryInput.value = text.trim().replace(/['"]+/g, ''); // Clean the response
+                } else {
+                    showToast("AI couldn't suggest a category.");
+                }
+            } catch (error) {
+                console.error("Gemini Category Suggestion Error:", error);
+                showToast("Error suggesting category.");
+            } finally {
+                suggestCategoryBtn.classList.remove('loading');
+                suggestCategoryBtn.disabled = false;
+            }
+        }
+
+        // --- Event Listeners ---
+        getSummaryBtn.addEventListener('click', getSummaryFromAI);
+        getProactiveTipsBtn.addEventListener('click', getProactiveTips);
+        suggestCategoryBtn.addEventListener('click', suggestCategory);
+
+        // --- Initialize App ---
+        document.addEventListener('DOMContentLoaded', initialAuth);
     </script>
 </body>
 </html>
+
