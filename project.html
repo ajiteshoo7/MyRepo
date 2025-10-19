@@ -52,7 +52,7 @@
         <!-- Header -->
         <header class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm mb-6">
             <h1 class="text-2xl font-bold text-gray-900">Health & Account Tracker</h1>
-            <p id="user-id-display" class="text-xs text-gray-500"></p>
+            <p id="user-id-display" class="text-xs text-gray-500">Local Session</p>
         </header>
 
         <!-- Dashboard Section -->
@@ -151,43 +151,6 @@
     </div>
 
     <script type="module">
-        // Firebase Imports
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { 
-            getAuth, 
-            signInAnonymously,
-            onAuthStateChanged,
-            signInWithCustomToken
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { 
-            getFirestore, 
-            collection, 
-            addDoc, 
-            query, 
-            where, 
-            onSnapshot,
-            orderBy,
-            limit,
-            serverTimestamp,
-            getDocs
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // --- Firebase Configuration ---
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-
-        // --- Initialize Firebase ---
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
         // --- DOM Elements ---
         const userIdDisplay = document.getElementById('user-id-display');
         const transactionForm = document.getElementById('transaction-form');
@@ -209,9 +172,8 @@
         const toastMessage = document.getElementById('toast-message');
 
         // --- App State ---
-        let currentUser = null;
-        let unsubTransactions = null;
-        let unsubHealthLogs = null;
+        let transactions = [];
+        let healthLogs = [];
 
         // --- Toast Notification Logic ---
         function showToast(message) {
@@ -221,149 +183,139 @@
                 toast.classList.remove('show');
             }, 3000);
         }
-        
-        // --- Authentication Logic ---
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUser = user;
-                userIdDisplay.textContent = `Session ID: ${user.uid.substring(0, 8)}...`;
-                listenToData();
-            } else {
-                currentUser = null;
-                if (unsubTransactions) unsubTransactions();
-                if (unsubHealthLogs) unsubHealthLogs();
-                transactionsList.innerHTML = '';
-                healthLogsList.innerHTML = '';
-            }
-        });
 
-        const initialAuth = async () => {
-             if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                try {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } catch (error) {
-                    console.error("Custom token sign-in failed, trying anonymous:", error);
-                    await signInAnonymously(auth);
-                }
+        // --- Data & Rendering Logic ---
+        function saveData() {
+            localStorage.setItem('healthTracker-transactions', JSON.stringify(transactions));
+            localStorage.setItem('healthTracker-healthLogs', JSON.stringify(healthLogs));
+        }
+
+        function loadData() {
+            const storedTransactions = localStorage.getItem('healthTracker-transactions');
+            const storedHealthLogs = localStorage.getItem('healthTracker-healthLogs');
+            if (storedTransactions) {
+                transactions = JSON.parse(storedTransactions);
+            }
+            if (storedHealthLogs) {
+                healthLogs = JSON.parse(storedHealthLogs);
+            }
+        }
+
+        function renderTransactions() {
+            let html = '';
+            const recentTransactions = transactions.slice(0, 10);
+            if (recentTransactions.length === 0) {
+                html = '<p class="text-gray-500">No transactions yet.</p>';
             } else {
-                signInAnonymously(auth).catch(error => {
-                    console.error("Anonymous sign-in failed:", error);
-                    showToast("Could not start a session. Please refresh.");
+                recentTransactions.forEach(data => {
+                    const date = new Date(data.timestamp).toLocaleDateString();
+                    const amountColor = data.type === 'income' ? 'text-green-600' : 'text-red-600';
+                    const sign = data.type === 'income' ? '+' : '-';
+                    html += `
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                            <div>
+                                <p class="font-semibold">${data.category}</p>
+                                <p class="text-sm text-gray-500">${date}</p>
+                            </div>
+                            <p class="font-bold ${amountColor}">${sign}$${Number(data.amount).toFixed(2)}</p>
+                        </div>`;
                 });
             }
-        };
-        
-        // --- Firestore Logic ---
-        function listenToData() {
-            if (!currentUser) return;
-            if (unsubTransactions) unsubTransactions();
-            if (unsubHealthLogs) unsubHealthLogs();
-            
-            const userDbPath = `artifacts/${appId}/users/${currentUser.uid}`;
-            const transQuery = query(collection(db, `${userDbPath}/transactions`), orderBy("timestamp", "desc"), limit(10));
-            unsubTransactions = onSnapshot(transQuery, (snapshot) => {
-                let html = '';
-                if (snapshot.empty) {
-                    html = '<p class="text-gray-500">No transactions yet.</p>';
-                } else {
-                    snapshot.forEach(doc => {
-                        const data = doc.data();
-                        const date = data.timestamp ? data.timestamp.toDate().toLocaleDateString() : 'No date';
-                        const amountColor = data.type === 'income' ? 'text-green-600' : 'text-red-600';
-                        const sign = data.type === 'income' ? '+' : '-';
-                        html += `
-                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                                <div>
-                                    <p class="font-semibold">${data.category}</p>
-                                    <p class="text-sm text-gray-500">${date}</p>
-                                </div>
-                                <p class="font-bold ${amountColor}">${sign}$${data.amount.toFixed(2)}</p>
-                            </div>`;
-                    });
-                }
-                transactionsList.innerHTML = html;
-            }, (error) => { console.error("Transaction listener error:", error); showToast("Could not fetch transactions."); });
+            transactionsList.innerHTML = html;
+        }
 
-            const healthQuery = query(collection(db, `${userDbPath}/health_logs`), orderBy("timestamp", "desc"), limit(10));
-            unsubHealthLogs = onSnapshot(healthQuery, (snapshot) => {
-                let html = '';
-                if (snapshot.empty) {
-                    html = '<p class="text-gray-500">No health logs yet.</p>';
-                } else {
-                    snapshot.forEach(doc => {
-                        const data = doc.data();
-                        const date = data.timestamp ? data.timestamp.toDate().toLocaleDateString() : 'No date';
-                        html += `
-                             <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                                <div>
-                                    <p class="font-semibold">Mood: ${data.mood}</p>
-                                    <p class="text-sm text-gray-500">${date}</p>
-                                </div>
-                                <p class="font-bold text-blue-600">${data.sleepHours} hours sleep</p>
-                            </div>`;
-                    });
-                }
-                healthLogsList.innerHTML = html;
-            }, (error) => { console.error("Health log listener error:", error); showToast("Could not fetch health logs."); });
+        function renderHealthLogs() {
+            let html = '';
+            const recentLogs = healthLogs.slice(0, 10);
+            if (recentLogs.length === 0) {
+                html = '<p class="text-gray-500">No health logs yet.</p>';
+            } else {
+                recentLogs.forEach(data => {
+                    const date = new Date(data.timestamp).toLocaleDateString();
+                    html += `
+                         <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                            <div>
+                                <p class="font-semibold">Mood: ${data.mood}</p>
+                                <p class="text-sm text-gray-500">${date}</p>
+                            </div>
+                            <p class="font-bold text-blue-600">${data.sleepHours} hours sleep</p>
+                        </div>`;
+                });
+            }
+            healthLogsList.innerHTML = html;
+        }
+
+        function renderAllData() {
+            renderTransactions();
+            renderHealthLogs();
         }
         
-        transactionForm.addEventListener('submit', async (e) => {
+        // --- Form Submit Handlers ---
+        transactionForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            if(!currentUser) return;
-            
             const type = document.getElementById('tr-type').value;
             const category = trCategoryInput.value;
             const amount = parseFloat(document.getElementById('tr-amount').value);
 
-            try {
-                await addDoc(collection(db, `artifacts/${appId}/users/${currentUser.uid}/transactions`), { type, category, amount, timestamp: serverTimestamp() });
-                transactionForm.reset();
-            } catch (error) { console.error("Error adding transaction:", error); showToast("Failed to add transaction."); }
+            if (!category || isNaN(amount)) {
+                showToast("Please fill out all fields correctly.");
+                return;
+            }
+
+            const newTransaction = {
+                type,
+                category,
+                amount,
+                timestamp: new Date().toISOString()
+            };
+
+            transactions.unshift(newTransaction);
+            saveData();
+            renderTransactions();
+            transactionForm.reset();
         });
 
-        healthLogForm.addEventListener('submit', async (e) => {
+        healthLogForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            if(!currentUser) return;
-
             const sleepHours = parseFloat(document.getElementById('hl-sleep').value);
             const mood = document.getElementById('hl-mood').value;
 
-            try {
-                await addDoc(collection(db, `artifacts/${appId}/users/${currentUser.uid}/health_logs`), { sleepHours, mood, timestamp: serverTimestamp() });
-                healthLogForm.reset();
-            } catch(error) { console.error("Error adding health log:", error); showToast("Failed to add health log."); }
+            if (isNaN(sleepHours)) {
+                showToast("Please enter valid hours slept.");
+                return;
+            }
+
+            const newLog = {
+                sleepHours,
+                mood,
+                timestamp: new Date().toISOString()
+            };
+            
+            healthLogs.unshift(newLog);
+            saveData();
+            renderHealthLogs();
+            healthLogForm.reset();
         });
 
         // --- Gemini API Logic ---
-
-        // Helper function to fetch recent data for AI analysis
-        async function fetchRecentData() {
-            if (!currentUser) return { transactions: [], healthLogs: [] };
-            const userDbPath = `artifacts/${appId}/users/${currentUser.uid}`;
-            const transactions = [];
-            const healthLogs = [];
-
-            const transQuery = query(collection(db, `${userDbPath}/transactions`), orderBy("timestamp", "desc"), limit(20));
-            const healthQuery = query(collection(db, `${userDbPath}/health_logs`), orderBy("timestamp", "desc"), limit(20));
-            
-            const transSnapshot = await getDocs(transQuery);
-            transSnapshot.forEach(doc => {
-                const data = doc.data();
-                transactions.push(`- ${data.type} of $${data.amount.toFixed(2)} for ${data.category} on ${data.timestamp.toDate().toLocaleDateString()}`);
+        function fetchRecentData() {
+            const recentTransactions = transactions.slice(0, 20).map(data => {
+                return `- ${data.type} of $${Number(data.amount).toFixed(2)} for ${data.category} on ${new Date(data.timestamp).toLocaleDateString()}`;
             });
-
-            const healthSnapshot = await getDocs(healthQuery);
-            healthSnapshot.forEach(doc => {
-                const data = doc.data();
-                healthLogs.push(`- On ${data.timestamp.toDate().toLocaleDateString()}, slept ${data.sleepHours} hours and felt ${data.mood}`);
+            const recentHealthLogs = healthLogs.slice(0, 20).map(data => {
+                return `- On ${new Date(data.timestamp).toLocaleDateString()}, slept ${data.sleepHours} hours and felt ${data.mood}`;
             });
-
-            return { transactions, healthLogs };
+            return { transactions: recentTransactions, healthLogs: recentHealthLogs };
         }
 
         async function callGeminiAPI(prompt) {
-            const apiKey = "AIzaSyDVYAZClbgwBIDVGn63dV2wf61p4_dWi1Y"; 
+            const apiKey = "AIzaSyDVYAZClbgwBIDVGn63dV2wf61p4_dWi1Y"; // IMPORTANT: Paste your Google AI Studio API key here
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            
+             if (!apiKey) {
+                showToast("API key is missing. Please add it to the script.");
+                throw new Error("API key is missing.");
+            }
             
             const response = await fetch(apiUrl, {
                 method: 'POST',
@@ -379,13 +331,12 @@
             return result.candidates?.[0]?.content?.parts?.[0]?.text;
         }
 
-        // Feature 1: Get Retrospective Summary
         async function getSummaryFromAI() {
             getSummaryBtn.disabled = true;
             getSummaryBtn.textContent = 'Generating...';
             summaryOutput.innerHTML = '<div class="flex justify-center items-center"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-700"></div></div>';
 
-            const { transactions, healthLogs } = await fetchRecentData();
+            const { transactions, healthLogs } = fetchRecentData();
             if (transactions.length === 0 && healthLogs.length === 0) {
                  summaryOutput.textContent = "Not enough data to generate a summary.";
                  getSummaryBtn.disabled = false;
@@ -403,20 +354,18 @@ My Recent Transactions:\n${transactions.join('\n')}\n\nMy Recent Health Logs:\n$
             } catch (error) {
                 console.error("Gemini Summary Error:", error);
                 summaryOutput.textContent = 'An error occurred while generating your summary.';
-                showToast("Error connecting to AI service.");
             } finally {
                 getSummaryBtn.disabled = false;
                 getSummaryBtn.textContent = '✨ Generate Retrospective Summary';
             }
         }
 
-        // Feature 2: Get Proactive Tips
         async function getProactiveTips() {
             getProactiveTipsBtn.disabled = true;
             getProactiveTipsBtn.textContent = 'Generating...';
             proactiveTipsOutput.innerHTML = '<div class="flex justify-center items-center"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-700"></div></div>';
 
-            const { transactions, healthLogs } = await fetchRecentData();
+            const { transactions, healthLogs } = fetchRecentData();
             if (transactions.length === 0 && healthLogs.length === 0) {
                  proactiveTipsOutput.textContent = "Not enough data to generate tips.";
                  getProactiveTipsBtn.disabled = false;
@@ -434,14 +383,12 @@ My Recent Transactions:\n${transactions.join('\n')}\n\nMy Recent Health Logs:\n$
             } catch (error) {
                 console.error("Gemini Tips Error:", error);
                 proactiveTipsOutput.textContent = 'An error occurred while generating your tips.';
-                showToast("Error connecting to AI service.");
             } finally {
                 getProactiveTipsBtn.disabled = false;
                 getProactiveTipsBtn.textContent = '✨ Generate Proactive Tips';
             }
         }
         
-        // Feature 3: Suggest Transaction Category
         async function suggestCategory() {
             const userInput = trCategoryInput.value;
             if (!userInput.trim()) {
@@ -457,7 +404,7 @@ My Recent Transactions:\n${transactions.join('\n')}\n\nMy Recent Health Logs:\n$
             try {
                 const text = await callGeminiAPI(prompt);
                 if (text) {
-                    trCategoryInput.value = text.trim().replace(/['"]+/g, ''); // Clean the response
+                    trCategoryInput.value = text.trim().replace(/['".]+/g, '');
                 } else {
                     showToast("AI couldn't suggest a category.");
                 }
@@ -476,8 +423,12 @@ My Recent Transactions:\n${transactions.join('\n')}\n\nMy Recent Health Logs:\n$
         suggestCategoryBtn.addEventListener('click', suggestCategory);
 
         // --- Initialize App ---
-        document.addEventListener('DOMContentLoaded', initialAuth);
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            renderAllData();
+        });
     </script>
 </body>
 </html>
 
+f
