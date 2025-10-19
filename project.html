@@ -217,7 +217,7 @@
                                 <p class="font-semibold">${data.category}</p>
                                 <p class="text-sm text-gray-500">${date}</p>
                             </div>
-                            <p class="font-bold ${amountColor}">${sign}$${Number(data.amount).toFixed(2)}</p>
+                            <p class="font-bold ${amountColor}">${sign}₹${Number(data.amount).toFixed(2)}</p>
                         </div>`;
                 });
             }
@@ -300,7 +300,7 @@
         // --- Gemini API Logic ---
         function fetchRecentData() {
             const recentTransactions = transactions.slice(0, 20).map(data => {
-                return `- ${data.type} of $${Number(data.amount).toFixed(2)} for ${data.category} on ${new Date(data.timestamp).toLocaleDateString()}`;
+                return `- ${data.type} of ₹${Number(data.amount).toFixed(2)} for ${data.category} on ${new Date(data.timestamp).toLocaleDateString()}`;
             });
             const recentHealthLogs = healthLogs.slice(0, 20).map(data => {
                 return `- On ${new Date(data.timestamp).toLocaleDateString()}, slept ${data.sleepHours} hours and felt ${data.mood}`;
@@ -431,4 +431,3 @@ My Recent Transactions:\n${transactions.join('\n')}\n\nMy Recent Health Logs:\n$
 </body>
 </html>
 
-f
