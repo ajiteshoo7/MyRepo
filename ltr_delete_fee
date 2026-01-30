@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Early Delete Fee Calculator | Druva</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #f3f4f6;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        .druva-navy { background-color: #002b5c; }
+        .druva-orange { background-color: #fb5144; }
+        .text-druva-navy { color: #002b5c; }
+        .text-druva-orange { color: #fb5144; }
+        .border-druva-orange { border-color: #fb5144; }
+        .focus-ring-druva:focus { ring-color: #fb5144; border-color: #fb5144; }
+        
+        .calculator-card {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Top Navigation / Help Bar -->
+    <nav class="druva-navy text-white py-3 px-6 flex justify-between items-center shadow-md">
+        <div class="flex items-center space-x-2">
+            <!-- Stylized Cloud Icon -->
+            <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M17.5,19c-3.037,0-5.5-2.463-5.5-5.5c0-3.037,2.463-5.5,5.5-5.5s5.5,2.463,5.5,5.5C23,16.537,20.537,19,17.5,19z M17.5,10 c-1.93,0-3.5,1.57-3.5,3.5s1.57,3.5,3.5,3.5s3.5-1.57,3.5-3.5S19.43,10,17.5,10z M7,17c-2.757,0-5-2.243-5-5s2.243-5,5-5 s5,2.243,5,5S9.757,17,7,17z M7,9c-1.654,0-3,1.346-3,3s1.346,3,3,3s3-1.346,3-3S8.654,9,7,9z"/>
+            </svg>
+            <span class="font-bold tracking-tight text-xl">druva</span>
+        </div>
+        <a href="https://help.druva.com/en/articles/8651731-about-long-term-retention#h_442d03b357" 
+           target="_blank" 
+           class="text-sm bg-white/10 hover:bg-white/20 transition-colors px-4 py-2 rounded-full flex items-center gap-2 border border-white/20">
+            <span>Help Documentation</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+        </a>
+    </nav>
+
+    <main class="flex-grow flex items-center justify-center p-4">
+        <div class="w-full max-w-md bg-white rounded-3xl p-8 calculator-card border border-gray-100">
+            <div class="mb-8 text-center">
+                <h1 class="text-2xl font-extrabold text-druva-navy">Early Delete Fee</h1>
+                <p class="text-xs text-gray-400 mt-2 font-medium tracking-widest uppercase">Credit Estimation Tool</p>
+                <div class="h-1 w-12 druva-orange mx-auto mt-4 rounded-full"></div>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Months Input -->
+                <div>
+                    <label for="months" class="block text-sm font-bold text-druva-navy mb-2">
+                        Months in Cold Tier
+                    </label>
+                    <input 
+                        type="number" 
+                        id="months" 
+                        placeholder="0 - 12" 
+                        min="0" 
+                        max="12"
+                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-druva-orange focus:ring-1 focus:ring-druva-orange outline-none transition-all bg-gray-50"
+                    >
+                </div>
+
+                <!-- Data Input with Unit Selector -->
+                <div>
+                    <label for="data" class="block text-sm font-bold text-druva-navy mb-2">
+                        Data Volume to Delete
+                    </label>
+                    <div class="flex">
+                        <input 
+                            type="number" 
+                            id="data" 
+                            placeholder="Amount" 
+                            step="0.01"
+                            class="w-full px-4 py-3 rounded-l-xl border border-gray-200 border-r-0 focus:border-druva-orange focus:ring-1 focus:ring-druva-orange outline-none transition-all bg-gray-50"
+                        >
+                        <select 
+                            id="unit" 
+                            class="px-4 py-3 bg-gray-100 border border-gray-200 rounded-r-xl border-l-gray-300 text-druva-navy font-bold text-sm focus:outline-none focus:ring-1 focus:ring-druva-orange"
+                        >
+                            <option value="TB">TB</option>
+                            <option value="GB">GB</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Result Section -->
+                <div class="druva-navy rounded-2xl p-6 text-white shadow-inner relative overflow-hidden">
+                    <!-- Subtle background decoration -->
+                    <div class="absolute -right-4 -top-4 w-24 h-24 bg-white/5 rounded-full"></div>
+                    
+                    <div class="text-center relative z-10">
+                        <span class="block text-xs font-bold text-white/60 uppercase tracking-widest mb-1">Total Fee</span>
+                        <div id="result" class="text-5xl font-black mb-1">
+                            0.00
+                        </div>
+                        <span class="text-sm font-medium text-druva-orange uppercase tracking-widest">Credits</span>
+                    </div>
+                </div>
+
+                <!-- Breakdown -->
+                <div id="breakdown" class="hidden text-[11px] text-gray-500 text-center font-mono space-y-1 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    <div id="conversion-notice" class="text-druva-orange font-bold mb-1 hidden">
+                        Converted <span id="input-val">0</span> GB to <span id="converted-val">0</span> TB
+                    </div>
+                    <div>Formula: 0.35 * (12 - <span id="b-months">0</span>) * <span id="b-data">0</span> TB</div>
+                </div>
+            </div>
+
+            <div class="mt-8 text-center">
+                <p class="text-[10px] text-gray-400 font-medium">
+                    Calculated based on standard LTR pricing model.
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="py-4 text-center text-gray-400 text-[10px] uppercase tracking-widest">
+        Druva Internal Utility &copy; 2025
+    </footer>
+
+    <script>
+        const monthsInput = document.getElementById('months');
+        const dataInput = document.getElementById('data');
+        const unitSelect = document.getElementById('unit');
+        const resultDisplay = document.getElementById('result');
+        const breakdown = document.getElementById('breakdown');
+        const conversionNotice = document.getElementById('conversion-notice');
+        const bMonths = document.getElementById('b-months');
+        const bData = document.getElementById('b-data');
+        const inputVal = document.getElementById('input-val');
+        const convertedVal = document.getElementById('converted-val');
+
+        function calculate() {
+            const months = parseFloat(monthsInput.value) || 0;
+            const rawData = parseFloat(dataInput.value) || 0;
+            const unit = unitSelect.value;
+
+            // Convert to TB if unit is GB
+            let dataInTB = rawData;
+            if (unit === 'GB') {
+                dataInTB = rawData / 1024;
+            }
+
+            // Cap months at 12 to prevent negative fees
+            const monthsRemaining = Math.max(0, 12 - months);
+            const fee = 0.35 * monthsRemaining * dataInTB;
+
+            // Update UI
+            resultDisplay.innerText = fee.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
+            // Update Breakdown visibility and values
+            if (months > 0 || rawData > 0) {
+                breakdown.classList.remove('hidden');
+                bMonths.innerText = months;
+                bData.innerText = dataInTB.toFixed(4);
+                
+                if (unit === 'GB' && rawData > 0) {
+                    conversionNotice.classList.remove('hidden');
+                    inputVal.innerText = rawData;
+                    convertedVal.innerText = dataInTB.toFixed(4);
+                } else {
+                    conversionNotice.classList.add('hidden');
+                }
+            } else {
+                breakdown.classList.add('hidden');
+            }
+        }
+
+        monthsInput.addEventListener('input', calculate);
+        dataInput.addEventListener('input', calculate);
+        unitSelect.addEventListener('change', calculate);
+    </script>
+</body>
+</html>
